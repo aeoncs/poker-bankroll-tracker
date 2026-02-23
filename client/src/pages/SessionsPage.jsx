@@ -241,6 +241,17 @@ export default function SessionsPage() {
             {filtersOpen ? "▾" : "▸"}
           </span>
         </button>
+        <br></br>
+
+         <label className={ui.field}>
+                <span className={ui.label}>Search</span>
+                <input
+                  className={ui.input}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="notes, location, etc."
+                />
+              </label>
 
         {filtersOpen && (
           <div className={ui.collapseBody}>
@@ -258,6 +269,8 @@ export default function SessionsPage() {
               <div className={ui.filterGroup}>
                 <div className={ui.label}>Type</div>
                 <div className={ui.toggleWrap}>
+
+                
                   <button
                     type="button"
                     className={types.includes("CASH") ? ui.toggleOn : ui.toggleOff}
@@ -380,15 +393,7 @@ export default function SessionsPage() {
             </div>
 
             <div className={ui.filtersGrid2}>
-              <label className={ui.field}>
-                <span className={ui.label}>Search</span>
-                <input
-                  className={ui.input}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="notes, location, etc."
-                />
-              </label>
+              
             </div>
           </div>
         )}

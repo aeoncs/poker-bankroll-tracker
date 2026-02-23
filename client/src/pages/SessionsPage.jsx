@@ -140,7 +140,21 @@ export default function SessionsPage() {
       }
 
       if (q) {
-        const hay = [s.game, s.stake, s.stakes, s.location, s.notes, s.type].filter(Boolean).join(" ").toLowerCase();
+        const profit = profitForSession(s);
+        const resultLabel = profit > 0 ? "win" : profit < 0 ? "loss" : "even";
+
+        const hay = [
+          s.game,
+          s.stake,
+          s.stakes,
+          s.location,
+          s.notes,
+          s.type,
+          resultLabel, // ✅ enables searching "win" / "loss" / "even"
+]
+  .filter(Boolean)
+  .join(" ")
+  .toLowerCase();
         if (!hay.includes(q)) return false;
       }
 
@@ -178,7 +192,7 @@ export default function SessionsPage() {
     query.trim().length;
 
   return (
-    <div className={ui.page}>
+    <div className={`${ui.page} ${ui.narrowPage}`}>
       <div className={ui.headerRow}>
         <h1 className={ui.title}>Sessions</h1>
 
@@ -416,7 +430,7 @@ export default function SessionsPage() {
               const resultLabel = profit > 0 ? "WIN" : profit < 0 ? "LOSS" : "EVEN";
 
               return (
-                <div key={s._id} className={ui.sessionRow} role="group">
+                <div key={s._id} className={ui.sessionRow} data-result={resultLabel} role="group">
                   <div style={{ cursor: "pointer" }} onClick={() => nav(`/sessions/${s._id}`)}>
                     <div className={ui.sessionTitle}>
                       <span className={ui.badge}>{s.type || "SESSION"}</span>
@@ -457,7 +471,7 @@ export default function SessionsPage() {
                       className={ui.ghostButton}
                       type="button"
                       onClick={(e) => {
-                        e.stopPropagation(); // prevent row click navigation
+                        e.stopPropagation(); 
                         nav(`/sessions/${s._id}/edit`);
                       }}
                       disabled={busy}

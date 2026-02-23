@@ -8,6 +8,11 @@
   box-sizing: border-box;
 }
 
+.narrowPage {
+  max-width: 860px; 
+  margin: 0 auto;
+}
+
 .headerRow {
   display: flex;
   align-items: center;
@@ -473,30 +478,59 @@
 }
 
 .sessionRow {
+  position: relative;
+  border-top: 0;
+  margin: 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+
+  padding: 12px 12px 12px 18px; 
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
-  padding: 12px;
-  border-top: 1px solid var(--border);
-  text-decoration: none;
-  color: var(--text);
+
+  transition: transform 0.08s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .sessionRow:hover {
+  transform: translateY(-1px);
+  border-color: var(--button-border-hover);
+  box-shadow: var(--shadow);
   background: rgba(15, 23, 42, 0.06);
 }
+
+.sessionRow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: rgba(15, 118, 110, 0.45);
+}
+
+.sessionRow[data-result="LOSS"]::before {
+  background: rgba(180, 35, 24, 0.55);
+}
+
+.sessionRow[data-result="EVEN"]::before {
+  background: rgba(107, 114, 128, 0.55);
+}
+
 
 .sessionTitle {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
+  gap: 10px;
+  align-items: center;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
   background: rgba(15, 23, 42, 0.06);
@@ -505,19 +539,40 @@
   opacity: 0.95;
 }
 
+/* Session meta (Buy-in/Cash-out/Duration/Rate) as a 2x2 grid */
 .metaLine {
-  margin-top: 6px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  opacity: 0.9;
-  font-size: 13px;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;     /* left col, right col */
+  grid-template-rows: auto auto;      /* top row, bottom row */
+  gap: 6px 18px;                      /* row gap, col gap */
+  font-size: 16px;
+  line-height: 1.35;
+  opacity: 0.92;
+}
+
+/* Put items into grid cells:
+   1) Buy-in  (top-left)
+   2) Cash-out (bottom-left)
+   3) Duration (top-right)
+   4) $/hr or BB/hr (bottom-right)
+*/
+.metaLine .metaItem:nth-child(1) { grid-column: 1; grid-row: 1; }
+.metaLine .metaItem:nth-child(2) { grid-column: 1; grid-row: 2; }
+.metaLine .metaItem:nth-child(3) { grid-column: 2; grid-row: 1; }
+.metaLine .metaItem:nth-child(4) { grid-column: 2; grid-row: 2; }
+
+.metaItem {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  min-width: 0;
 }
 
 .metaItem {
   display: inline-flex;
   gap: 6px;
-  align-items: center;
+  align-items: baseline;
 }
 
 .rightCol {
@@ -636,8 +691,8 @@
 /* Collapsible panel header (Filters) */
 .collapseHeader {
   width: 100%;
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.04);
   color: var(--text);
   cursor: pointer;
 
@@ -646,7 +701,20 @@
   justify-content: space-between;
   gap: 12px;
 
-  padding: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.collapseHeader:hover {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: var(--button-border-hover);
+}
+
+.collapseHeader:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow);
 }
 
 .collapseTitleRow {
@@ -697,9 +765,9 @@
 }
 
 .toggleOn {
-  background: var(--toggle-on-bg);
+  background: var(--brand);
   color: var(--text);
-  border-color: var(--toggle-on-border);
+  border-color: var(--button-border-hover);
 }
 
 .toggleOff:hover,

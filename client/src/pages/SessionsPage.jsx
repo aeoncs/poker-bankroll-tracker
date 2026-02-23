@@ -452,6 +452,18 @@ export default function SessionsPage() {
                   </div>
 
                   <div className={ui.rightCol}>
+
+                    <button
+                      className={ui.ghostButton}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent row click navigation
+                        nav(`/sessions/${s._id}/edit`);
+                      }}
+                      disabled={busy}
+                    >
+                      Edit
+                    </button>
                     <button className={ui.dangerButton} type="button" onClick={() => onDelete(s._id)} disabled={busy}>
                       Delete
                     </button>

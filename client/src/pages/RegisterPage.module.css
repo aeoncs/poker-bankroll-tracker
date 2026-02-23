@@ -1,0 +1,222 @@
+.page {
+  height: 70dvh;         
+  min-height: 70vh;      
+  overflow: hidden;       
+
+  background:url("/login-bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #0b0f14;
+
+  color: #e7eef7;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 126px 18px;    
+}
+
+.page * {
+  box-sizing: border-box;
+}
+
+.card {
+  position: relative; 
+  width: 100%;
+  max-width: 420px;
+
+  border: 1px solid #1c2533;
+  background: rgba(15, 21, 32, 0.85);
+  backdrop-filter: blur(8px);
+
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.cardLogo {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 84px;
+  height: 84px;
+  border-radius: 14px;
+
+  display: grid;
+  place-items: center;
+
+}
+
+.cardLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.subtitle {
+  margin: 8px 0 0 0;
+  opacity: 0.9;
+  font-size: 15px;
+}
+
+.errorBanner {
+  margin-top: 16px;
+  border: 1px solid #3a1f28;
+  background: rgba(26, 17, 20, 0.7);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.errorTitle {
+  font-weight: 800;
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.errorText {
+  margin-top: 6px;
+  opacity: 0.95;
+  font-size: 14px;
+}
+
+.form {
+  margin-top: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.input {
+  width: 100%;
+  background: #0b0f14;
+  border: 1px solid #27344a;
+  color: #e7eef7;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.input:focus {
+  border-color: #93b6ea;
+  box-shadow: 0 0 0 3px rgba(58, 82, 119, 0.25);
+}
+
+.passwordRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.passwordRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.ghostButton {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid #27344a;
+  color: #e7eef7;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.ghostButton:hover {
+  background: rgba(18, 26, 40, 0.8);
+  border-color: #3a5277;
+}
+
+.ghostButton:active {
+  transform: translateY(1px);
+}
+
+.ghostButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(58, 82, 119, 0.35);
+}
+
+.hint {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.primaryButton {
+  margin-top: 2px;
+  background: #172236;
+  border: 1px solid #27344a;
+  color: #e7eef7;
+  border-radius: 12px;
+  padding: 12px 12px;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 15px;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primaryButton:hover {
+  background: #1c2a44;
+  border-color: #3a5277;
+}
+
+.primaryButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.primaryButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(58, 82, 119, 0.35);
+}
+
+.primaryButton:disabled,
+.input:disabled,
+.ghostButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.footerLink {
+  color: #cfe0f5;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}

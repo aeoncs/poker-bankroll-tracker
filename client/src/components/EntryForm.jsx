@@ -314,11 +314,22 @@ export default function EntryForm({
     }
   }
 
-  function endSession() {
-    if (!sessionRunningRef.current) return;
+function endSession() {
+  setError("");
 
-    const now = Date.now();
+  const now = Date.now();
+  const nowLocal = nowDateTimeLocal();
 
+  // If user never set start time, set it to now so the session is valid.
+  if (!startTimeLocal) {
+    setStartTimeLocal(nowLocal);
+  }
+
+  // Always set end time to now (even if timer isn't running)
+  setEndTimeLocal(nowLocal);
+
+  // If timer was running, commit live time and stop it
+  if (sessionRunningRef.current) {
     if (onBreakRef.current) {
       const b0 = breakStartMsRef.current;
       const liveBreak = b0 ? Math.max(0, Math.floor((now - b0) / 1000)) : 0;
@@ -335,12 +346,26 @@ export default function EntryForm({
 
     sessionRunningRef.current = false;
     onBreakRef.current = false;
-
     setSessionRunning(false);
     setOnBreak(false);
-
-    setEndTimeLocal(nowDateTimeLocal());
   }
+
+  const startISO = fromDateTimeLocalValue(startTimeLocal || nowLocal);
+  const endISO = fromDateTimeLocalValue(nowLocal);
+
+  if (startISO && endISO) {
+    const a = new Date(startISO).getTime();
+    const b = new Date(endISO).getTime();
+    if (Number.isFinite(a) && Number.isFinite(b) && b >= a) {
+      const totalSec = Math.max(0, Math.floor((b - a) / 1000));
+      const breakTotal = breakCommittedRef.current; // no live break since we're ended
+      const activeSec = Math.max(0, totalSec - breakTotal);
+
+      activeCommittedRef.current = activeSec;
+      setSessionSeconds(activeSec);
+    }
+  }
+}
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -419,8 +444,13 @@ export default function EntryForm({
             {onBreak ? "Resume" : "Break"}
           </button>
 
-          <button className={ui.dangerButton} type="button" onClick={endSession} disabled={busy || !sessionRunning}>
-            End session
+          <button
+            className={ui.dangerButton}
+            type="button"
+            onClick={endSession}
+            disabled={busy}
+            >
+              End session
           </button>
         </div>
       </div>

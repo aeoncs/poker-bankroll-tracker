@@ -1,16 +1,47 @@
-# React + Vite
+Project Proposal - 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A poker bankroll tracker. A website that allows users to login and create
+multiple bankrolls to track different poker session wins and losses. After entering
+data users will be able to filter their entries/sessions with multiple filters
+in order to get a better standing of their performance.
 
-Currently, two official plugins are available:
+User Flow - https://www.figma.com/site/jFdPVykXojItnMEJINyB7K/Untitled?node-id=0-1&t=dNQbOF9fiGGh5Bwu-1
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## React Compiler
+Database Schema
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Users - ID(req),Email(req), Password(req), Bankroll(s)[Added After Creation - Required for Session Creation]
 
-## Expanding the ESLint configuration
+Bankrolls - ID(req),Name(req), Currency(req), Starting Amount(req)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Sessions - Userid(req), Bankrollid(req), Entry Type(cash or tourney)(req), Data(req), Currency(from bankroll), Game Type,Start&End time, Location, Notes
+
+----------Cash Entries in Sessions
+    Stakes,Buyin,Cashout,Duration
+
+----------Tournament Entries in Sessions
+    Fee,rebuys,addons,winngs,finishing position,# of entrants
+
+
+
+API - 
+
+API Endpoint = Get => "/login" => Login Page
+
+API Endpoint = POST => /login => Result
+    Successful login will redirect user to Dashboard(or Setup if onboarding not complete)
+
+    Failure will return error.
+
+API Endpoint = POST => "/register" => Register user in database
+
+API Endpoint = POST/PUT/DEL => "/sessions" => Create/Update/Delete Sessions
+
+API Endpoint = POST => "setup" => Initial setup of user settings
+API Endpoint = PUT => "settings" => Edit user settings
+
+API Endpoint = POST/PUT/Del => "bankrolls" => Create,Edit,Delete bankrolls
+
+    
+API Endpoint = POST => "/logout" => Logs user out of session
+

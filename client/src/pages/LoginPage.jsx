@@ -160,16 +160,19 @@ export default function LoginPage() {
                 {busy ? "Signing in…" : "Sign in"}
               </button>
 
-              <button
-                  className={styles.primaryButton}
-                  type="button"
-                  onClick={() => {
-                    // hits server directly
-                    window.location.href = "http://localhost:4000/api/auth/google";
-                  }}
-                >
-                  Sign in with Google
-              </button>
+                          <button
+              type="button"
+              className={styles.googleButton}
+              onClick={() => {
+                window.location.href = "http://localhost:4000/api/auth/google";
+              }}
+            >
+              <img
+                className={styles.googleButtonImg}
+                src="/google_sign_in.png"
+                alt="Sign in with Google"
+              />
+            </button>
             </form>
 
             <div className={styles.footer}>

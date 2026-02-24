@@ -299,3 +299,61 @@
 .footerLink:hover {
   text-decoration: underline;
 }
+
+
+.googleButton {
+  /* Make button behave like an image container */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Remove default button look */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+
+  cursor: pointer;
+  border-radius: 12px; /* matches common button rounding */
+  overflow: hidden;
+
+  /* Smooth interactions */
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fully responsive image */
+.googleButtonImg {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+
+/* Hover */
+.googleButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Pressed */
+.googleButton:active {
+  transform: translateY(0px) scale(0.98);
+  filter: brightness(0.98);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* Keyboard accessibility */
+.googleButton:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 3px;
+}
+
+/* Optional: if you place it in a narrow container, let it shrink nicely */
+@media (max-width: 420px) {
+  .googleButtonImg {
+    width: 100%;
+    max-width: 320px;
+  }
+}

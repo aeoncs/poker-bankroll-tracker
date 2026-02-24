@@ -29,7 +29,7 @@ export default function AppLayout({ variant = "app" }) {
       <header className={styles.topNav}>
         <div className={styles.brand}>
           <img className={styles.logoImg} src="/logo.png" alt="Poker Bankroll Tracker logo" />
-          <span className={styles.brandText}>Poker Bankroll Tracker</span>
+          <span className={styles.brandText}>3BetMonkey - Poker Bankroll Tracker</span>
         </div>
 
         {!isSetup && (

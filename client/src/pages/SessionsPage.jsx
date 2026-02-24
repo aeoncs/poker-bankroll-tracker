@@ -41,12 +41,33 @@ function ratePerHour(profit, minutes) {
   return profit / (minutes / 60);
 }
 
-function getSessionDateObj(s) {
-  const raw = s.date || s.startTime || s.createdAt;
-  if (!raw) return null;
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return null;
-  return d;
+/**
+ * Fixes "1 day off" by preferring startTime for display and filtering.
+ * If no startTime exists, treat `date` as a date-only value (YYYY-MM-DD) in UTC,
+ * then construct a LOCAL date from the parts (no timezone shifting).
+ */
+function getSessionLocalDateObject(s) {
+  // 1) Prefer startTime (represents user's selected local datetime)
+  if (s?.startTime) {
+    const d = new Date(s.startTime);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+
+  // 2) Fallback: treat stored date as date-only
+  if (s?.date) {
+    const iso = new Date(s.date).toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const [y, m, d] = iso.split("-").map(Number);
+    const local = new Date(y, m - 1, d); // local midnight (no shift)
+    if (!Number.isNaN(local.getTime())) return local;
+  }
+
+  // 3) Last fallback: createdAt
+  if (s?.createdAt) {
+    const d = new Date(s.createdAt);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+
+  return null;
 }
 
 const DOW = [
@@ -68,19 +89,16 @@ export default function SessionsPage() {
   const { user } = useAuth();
   const { activeBankrollId, activeBankroll } = useBankroll();
 
-  // Rate display mode
   const [rateMode, setRateMode] = useState("usd"); // "usd" | "bb"
-
-  // Collapsed filters
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Multi-select filters
-  const [types, setTypes] = useState([]); // ["CASH","TOURNEY"]
-  const [gamesSel, setGamesSel] = useState([]); // array of game strings
-  const [stakesSel, setStakesSel] = useState([]); // array of stake strings
-  const [locationsSel, setLocationsSel] = useState([]); // array of location strings
-  const [daysSel, setDaysSel] = useState([]); // array of 0-6
-  const [resultsSel, setResultsSel] = useState([]); // ["WIN","LOSS","EVEN"]
+  const [types, setTypes] = useState([]);
+  const [gamesSel, setGamesSel] = useState([]);
+  const [stakesSel, setStakesSel] = useState([]);
+  const [locationsSel, setLocationsSel] = useState([]);
+  const [daysSel, setDaysSel] = useState([]);
+  const [resultsSel, setResultsSel] = useState([]);
   const [query, setQuery] = useState("");
 
   const [sessions, setSessions] = useState([]);
@@ -127,7 +145,7 @@ export default function SessionsPage() {
       if (locationsSel.length && !locationsSel.some((x) => x.toLowerCase() === loc.toLowerCase())) return false;
 
       if (daysSel.length) {
-        const d = getSessionDateObj(s);
+        const d = getSessionLocalDateObject(s);
         if (!d) return false;
         const dow = d.getDay();
         if (!daysSel.includes(dow)) return false;
@@ -150,11 +168,12 @@ export default function SessionsPage() {
           s.location,
           s.notes,
           s.type,
-          resultLabel, // ✅ enables searching "win" / "loss" / "even"
-]
-  .filter(Boolean)
-  .join(" ")
-  .toLowerCase();
+          resultLabel,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
         if (!hay.includes(q)) return false;
       }
 
@@ -196,17 +215,12 @@ export default function SessionsPage() {
       <div className={ui.headerRow}>
         <h1 className={ui.title}>Sessions</h1>
 
-        {/* Header actions */}
         <div className={ui.splitActions}>
           <button className={ui.button} onClick={load} disabled={busy || !activeBankrollId}>
             {busy ? "Loading…" : "Refresh"}
           </button>
 
-          <button
-            className={ui.ghostButton}
-            type="button"
-            onClick={() => setRateMode(rateMode === "usd" ? "bb" : "usd")}
-          >
+          <button className={ui.ghostButton} type="button" onClick={() => setRateMode(rateMode === "usd" ? "bb" : "usd")}>
             {rateMode === "usd" ? "Show BB/hr" : "Show $/hr"}
           </button>
 
@@ -218,13 +232,13 @@ export default function SessionsPage() {
 
       {activeBankroll && (
         <div className={ui.subtle}>
-          Viewing <strong>{activeBankroll.name}</strong> ({activeBankroll.currency})
+          Bankroll - <strong>{activeBankroll.name}</strong> ({activeBankroll.currency})
         </div>
       )}
 
       {error && <div className={ui.errorBanner}>{error}</div>}
 
-      {/* Collapsible Filters */}
+      {/* Filters */}
       <div className={ui.panel} style={{ marginTop: 14 }}>
         <button
           type="button"
@@ -241,17 +255,19 @@ export default function SessionsPage() {
             {filtersOpen ? "▾" : "▸"}
           </span>
         </button>
-        <br></br>
 
-         <label className={ui.field}>
-                <span className={ui.label}>Search</span>
-                <input
-                  className={ui.input}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="notes, location, etc."
-                />
-              </label>
+        <br />
+
+        {/* Search stays visible even when collapsed */}
+        <label className={ui.field}>
+          <span className={ui.label}>Search</span>
+          <input
+            className={ui.input}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder='notes, location, etc. (try "win" / "loss")'
+          />
+        </label>
 
         {filtersOpen && (
           <div className={ui.collapseBody}>
@@ -264,13 +280,10 @@ export default function SessionsPage() {
               </div>
             </div>
 
-            {/* Toggle groups */}
             <div className={ui.filterGroups}>
               <div className={ui.filterGroup}>
                 <div className={ui.label}>Type</div>
                 <div className={ui.toggleWrap}>
-
-                
                   <button
                     type="button"
                     className={types.includes("CASH") ? ui.toggleOn : ui.toggleOff}
@@ -392,14 +405,12 @@ export default function SessionsPage() {
               </div>
             </div>
 
-            <div className={ui.filtersGrid2}>
-              
-            </div>
+            <div className={ui.filtersGrid2}></div>
           </div>
         )}
       </div>
 
-      {/* Scrollable list */}
+      {/* Sessions list */}
       <div className={ui.listCard} style={{ marginTop: 14 }}>
         <div className={ui.listHeaderRow}>
           <div className={ui.sectionTitleText}>All Sessions</div>
@@ -430,9 +441,10 @@ export default function SessionsPage() {
                     ? "—"
                     : `${bbPerHour.toFixed(2)} BB/hr`;
 
-              const dateObj = getSessionDateObj(s);
-              const dateStr = dateObj ? dateObj.toLocaleDateString(undefined) : "—";
               const resultLabel = profit > 0 ? "WIN" : profit < 0 ? "LOSS" : "EVEN";
+
+              const dateObj = getSessionLocalDateObject(s);
+              const dateStr = dateObj ? dateObj.toLocaleDateString(undefined) : "—";
 
               return (
                 <div key={s._id} className={ui.sessionRow} data-result={resultLabel} role="group">
@@ -452,7 +464,8 @@ export default function SessionsPage() {
                       </span>
                       <span className={ui.metaItem}>
                         <strong>Cash-out:</strong>{" "}
-                        {s.type === "CASH" ? (s.cashOut ?? "—") : (s.winnings ?? "—")} {s.currency || activeBankroll?.currency || ""}
+                        {s.type === "CASH" ? (s.cashOut ?? "—") : (s.winnings ?? "—")}{" "}
+                        {s.currency || activeBankroll?.currency || ""}
                       </span>
                       <span className={ui.metaItem}>
                         <strong>Duration:</strong> {formatDuration(mins)}
@@ -471,19 +484,27 @@ export default function SessionsPage() {
                   </div>
 
                   <div className={ui.rightCol}>
-
                     <button
                       className={ui.ghostButton}
                       type="button"
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         nav(`/sessions/${s._id}/edit`);
                       }}
                       disabled={busy}
                     >
                       Edit
                     </button>
-                    <button className={ui.dangerButton} type="button" onClick={() => onDelete(s._id)} disabled={busy}>
+
+                    <button
+                      className={ui.dangerButton}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(s._id);
+                      }}
+                      disabled={busy}
+                    >
                       Delete
                     </button>
                   </div>

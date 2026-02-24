@@ -97,6 +97,29 @@
   font-weight: 900;
 }
 
+/* Dashboard card helpers */
+.cardUniform {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px; 
+}
+
+.cardValueRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.goodText {
+  color: var(--good, #22c55e);
+}
+
+.badText {
+  color: var(--danger);
+}
+
 .input,
 .select,
 .textarea {

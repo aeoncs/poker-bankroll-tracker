@@ -12,10 +12,15 @@ const bankrollSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+
+  
+    passwordHash: { type: String, required: false, default: "" },
+
+    googleId: { type: String, default: null, index: true },
+    name: { type: String, default: "" },
+    avatarUrl: { type: String, default: "" },
 
     bankrolls: { type: [bankrollSchema], default: [] },
-    
 
     // preferences
     theme: { type: String, enum: ["dark", "light"], default: "dark" },
@@ -24,7 +29,6 @@ const userSchema = new mongoose.Schema(
     locations: { type: [String], default: [] },
 
     // default settings for new sessions
-
     defaultGame: { type: String, default: "" },
     defaultStake: { type: String, default: "" },
     defaultLocation: { type: String, default: "" },

@@ -109,8 +109,16 @@ export async function getTimeseries(req, res, next) {
     const bankrollId = String(req.query.bankrollId || "");
     if (!bankrollId) return res.status(400).json({ message: "bankrollId is required" });
 
-    const bucket = String(req.query.bucket || "day");
-    const unit = bucket === "month" ? "month" : bucket === "week" ? "week" : "day";
+    const bucket = String(req.query.bucket || "day").toLowerCase();
+
+    const unit =
+      bucket === "year"
+        ? "year"
+        : bucket === "month"
+        ? "month"
+        : bucket === "week"
+        ? "week"
+        : "day";
 
     const { start, end } = req.query;
 

@@ -259,7 +259,7 @@ export default function DashboardPage() {
 
       <div className={ui.controls}>
         <label className={ui.field}>
-          <span className={ui.label}>Bucket</span>
+          <span className={ui.label}>Range</span>
           <select className={ui.select} value={bucket} onChange={(e) => setBucket(e.target.value)}>
             <option value="day">Daily</option>
             <option value="week">Weekly</option>

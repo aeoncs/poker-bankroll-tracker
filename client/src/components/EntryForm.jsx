@@ -54,8 +54,6 @@ export default function EntryForm({
   gameOptions = [],
   stakeOptions = [],
   locationOptions = [],
-
-  // defaults for new sessions (optional)
   defaultGame = "",
   defaultStake = "",
   defaultLocation = "",
@@ -63,9 +61,11 @@ export default function EntryForm({
   const defaultBankrollId = bankrolls[0]?._id || "";
 
   const [bankrollId, setBankrollId] = useState(defaultBankrollId);
+
+  // ✅ type is editable in edit mode too
   const [type, setType] = useState("CASH");
 
-  // we no longer show date input, but we keep a date state for edit hydration / fallback
+  // keep date state only for fallback (we derive date from startTime on submit)
   const [date, setDate] = useState(localTodayYYYYMMDD());
 
   const [game, setGame] = useState(mode === "create" ? (defaultGame || "") : "");
@@ -90,22 +90,22 @@ export default function EntryForm({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Timer display state
+  // Timer display state (create mode only)
   const [sessionRunning, setSessionRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
 
-  const [sessionSeconds, setSessionSeconds] = useState(0); // active play seconds
+  const [sessionSeconds, setSessionSeconds] = useState(0);
   const [breakSeconds, setBreakSeconds] = useState(0);
 
-  // Timer refs (committed + elapsed, no double counting)
+  // Timer refs
   const sessionRunningRef = useRef(false);
   const onBreakRef = useRef(false);
 
-  const activeCommittedRef = useRef(0); // committed active seconds
-  const breakCommittedRef = useRef(0); // committed break seconds
+  const activeCommittedRef = useRef(0);
+  const breakCommittedRef = useRef(0);
 
-  const activeStartMsRef = useRef(null); // active segment start
-  const breakStartMsRef = useRef(null); // break segment start
+  const activeStartMsRef = useRef(null);
+  const breakStartMsRef = useRef(null);
 
   const intervalRef = useRef(null);
 
@@ -118,7 +118,6 @@ export default function EntryForm({
   const startISO = useMemo(() => fromDateTimeLocalValue(startTimeLocal), [startTimeLocal]);
   const endISO = useMemo(() => fromDateTimeLocalValue(endTimeLocal), [endTimeLocal]);
 
-  // active duration minutes (excluding breaks)
   const durationMinutes = useMemo(() => Math.floor(sessionSeconds / 60), [sessionSeconds]);
 
   const profitPreview = useMemo(() => {
@@ -127,15 +126,14 @@ export default function EntryForm({
     return (Number(winnings) || 0) - (bi + (Number(fee) || 0) + (Number(rebuys) || 0) + (Number(addons) || 0));
   }, [type, buyIn, cashOut, winnings, fee, rebuys, addons]);
 
-  // keep refs synced
   useEffect(() => {
     sessionRunningRef.current = sessionRunning;
   }, [sessionRunning]);
+
   useEffect(() => {
     onBreakRef.current = onBreak;
   }, [onBreak]);
 
-  // default bankroll selection
   useEffect(() => {
     if (!bankrollId && defaultBankrollId) setBankrollId(defaultBankrollId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,7 +150,7 @@ export default function EntryForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultGame, defaultStake, defaultLocation]);
 
-  // interval ticks (committed + live)
+  // timer ticks (only relevant when create)
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       if (!sessionRunningRef.current) return;
@@ -189,8 +187,6 @@ export default function EntryForm({
 
     setBankrollId(initialValues.bankrollId);
     setType(initialValues.type);
-
-    // keep date state around (for fallback), but UI does not show it
     setDate(toDateInputValue(initialValues.date) || localTodayYYYYMMDD());
 
     setGame(initialValues.game || "");
@@ -205,11 +201,16 @@ export default function EntryForm({
 
     if (initialValues.type === "CASH") {
       setCashOut(initialValues.cashOut ?? 0);
+      setFee(0);
+      setRebuys(0);
+      setAddons(0);
+      setWinnings(0);
     } else {
       setFee(initialValues.fee ?? 0);
       setRebuys(initialValues.rebuys ?? 0);
       setAddons(initialValues.addons ?? 0);
       setWinnings(initialValues.winnings ?? 0);
+      setCashOut(0);
     }
 
     const mins = initialValues.durationMinutes ?? null;
@@ -314,58 +315,55 @@ export default function EntryForm({
     }
   }
 
-function endSession() {
-  setError("");
+  // endSession is used in create mode only UI, but kept here
+  function endSession() {
+    setError("");
 
-  const now = Date.now();
-  const nowLocal = nowDateTimeLocal();
+    const now = Date.now();
+    const nowLocal = nowDateTimeLocal();
 
-  // If user never set start time, set it to now so the session is valid.
-  if (!startTimeLocal) {
-    setStartTimeLocal(nowLocal);
-  }
+    const effectiveStartLocal = startTimeLocal || nowLocal;
+    if (!startTimeLocal) setStartTimeLocal(effectiveStartLocal);
 
-  // Always set end time to now (even if timer isn't running)
-  setEndTimeLocal(nowLocal);
+    setEndTimeLocal(nowLocal);
 
-  // If timer was running, commit live time and stop it
-  if (sessionRunningRef.current) {
-    if (onBreakRef.current) {
-      const b0 = breakStartMsRef.current;
-      const liveBreak = b0 ? Math.max(0, Math.floor((now - b0) / 1000)) : 0;
-      breakCommittedRef.current += liveBreak;
-      setBreakSeconds(breakCommittedRef.current);
-      breakStartMsRef.current = null;
-    } else {
-      const a0 = activeStartMsRef.current;
-      const liveActive = a0 ? Math.max(0, Math.floor((now - a0) / 1000)) : 0;
-      activeCommittedRef.current += liveActive;
-      setSessionSeconds(activeCommittedRef.current);
-      activeStartMsRef.current = null;
+    if (sessionRunningRef.current) {
+      if (onBreakRef.current) {
+        const b0 = breakStartMsRef.current;
+        const liveBreak = b0 ? Math.max(0, Math.floor((now - b0) / 1000)) : 0;
+        breakCommittedRef.current += liveBreak;
+        setBreakSeconds(breakCommittedRef.current);
+        breakStartMsRef.current = null;
+      } else {
+        const a0 = activeStartMsRef.current;
+        const liveActive = a0 ? Math.max(0, Math.floor((now - a0) / 1000)) : 0;
+        activeCommittedRef.current += liveActive;
+        setSessionSeconds(activeCommittedRef.current);
+        activeStartMsRef.current = null;
+      }
+
+      sessionRunningRef.current = false;
+      onBreakRef.current = false;
+      setSessionRunning(false);
+      setOnBreak(false);
     }
 
-    sessionRunningRef.current = false;
-    onBreakRef.current = false;
-    setSessionRunning(false);
-    setOnBreak(false);
-  }
+    const startISO2 = fromDateTimeLocalValue(effectiveStartLocal);
+    const endISO2 = fromDateTimeLocalValue(nowLocal);
 
-  const startISO = fromDateTimeLocalValue(startTimeLocal || nowLocal);
-  const endISO = fromDateTimeLocalValue(nowLocal);
+    if (startISO2 && endISO2) {
+      const a = new Date(startISO2).getTime();
+      const b = new Date(endISO2).getTime();
+      if (Number.isFinite(a) && Number.isFinite(b) && b >= a) {
+        const totalSec = Math.max(0, Math.floor((b - a) / 1000));
+        const breakTotal = breakCommittedRef.current;
+        const activeSec = Math.max(0, totalSec - breakTotal);
 
-  if (startISO && endISO) {
-    const a = new Date(startISO).getTime();
-    const b = new Date(endISO).getTime();
-    if (Number.isFinite(a) && Number.isFinite(b) && b >= a) {
-      const totalSec = Math.max(0, Math.floor((b - a) / 1000));
-      const breakTotal = breakCommittedRef.current; // no live break since we're ended
-      const activeSec = Math.max(0, totalSec - breakTotal);
-
-      activeCommittedRef.current = activeSec;
-      setSessionSeconds(activeSec);
+        activeCommittedRef.current = activeSec;
+        setSessionSeconds(activeSec);
+      }
     }
   }
-}
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -383,7 +381,6 @@ function endSession() {
         if (b <= a) throw new Error("End time must be after start time.");
       }
 
-      // ✅ date comes from the session start date (or today if not set yet)
       const sessionDate = (startTimeLocal && startTimeLocal.slice(0, 10)) || date || localTodayYYYYMMDD();
 
       const base = {
@@ -393,7 +390,7 @@ function endSession() {
         game: game.trim() || undefined,
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
-        stakes: stake.trim() || undefined,
+        stakes: stake.trim() || undefined, // backend expects `stakes`
         startTime: startISO || undefined,
         endTime: endISO || undefined,
         ...(durationMinutes > 0 ? { durationMinutes } : {}),
@@ -402,14 +399,7 @@ function endSession() {
       const payload =
         type === "CASH"
           ? { ...base, buyIn: Number(buyIn), cashOut: Number(cashOut) }
-          : {
-              ...base,
-              buyIn: Number(buyIn),
-              fee: Number(fee),
-              rebuys: Number(rebuys),
-              addons: Number(addons),
-              winnings: Number(winnings),
-            };
+          : { ...base, buyIn: Number(buyIn), fee: Number(fee), rebuys: Number(rebuys), addons: Number(addons), winnings: Number(winnings) };
 
       await onSubmit(payload);
     } catch (err) {
@@ -421,39 +411,36 @@ function endSession() {
 
   return (
     <form onSubmit={handleSubmit} className={ui.formStack}>
-      {/* Timer controls */}
-      <div className={ui.timerBar}>
-        <div className={ui.timerStats}>
-          <div className={ui.smallMuted}>
-            Session: <strong>{formatDurationFromSeconds(sessionSeconds)}</strong>
+      {/* ✅ Hide timer controls in edit mode */}
+      {mode !== "edit" && (
+        <div className={ui.timerBar}>
+          <div className={ui.timerStats}>
+            <div className={ui.smallMuted}>
+              Session: <strong>{formatDurationFromSeconds(sessionSeconds)}</strong>
+            </div>
+            <div className={ui.smallMuted}>
+              Break: <strong>{formatDurationFromSeconds(breakSeconds)}</strong>
+            </div>
+            <div className={ui.smallMuted}>
+              Active minutes: <strong>{durationMinutes}</strong>
+            </div>
           </div>
-          <div className={ui.smallMuted}>
-            Break: <strong>{formatDurationFromSeconds(breakSeconds)}</strong>
-          </div>
-          <div className={ui.smallMuted}>
-            Active minutes: <strong>{durationMinutes}</strong>
-          </div>
-        </div>
 
-        <div className={ui.timerActions}>
-          <button className={ui.button} type="button" onClick={startSession} disabled={busy || sessionRunning}>
-            Start session
-          </button>
+          <div className={ui.timerActions}>
+            <button className={ui.button} type="button" onClick={startSession} disabled={busy || sessionRunning}>
+              Start session
+            </button>
 
-          <button className={ui.ghostButton} type="button" onClick={toggleBreak} disabled={busy || !sessionRunning}>
-            {onBreak ? "Resume" : "Break"}
-          </button>
+            <button className={ui.ghostButton} type="button" onClick={toggleBreak} disabled={busy || !sessionRunning}>
+              {onBreak ? "Resume" : "Break"}
+            </button>
 
-          <button
-            className={ui.dangerButton}
-            type="button"
-            onClick={endSession}
-            disabled={busy}
-            >
+            <button className={ui.dangerButton} type="button" onClick={endSession} disabled={busy}>
               End session
-          </button>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={ui.formRow2}>
         <label className={ui.field}>
@@ -469,11 +456,11 @@ function endSession() {
 
         <label className={ui.field}>
           <span className={ui.label}>Type</span>
-          <select className={ui.select} value={type} onChange={(e) => setType(e.target.value)} disabled={mode === "edit"}>
+          {/* ✅ no lock in edit mode */}
+          <select className={ui.select} value={type} onChange={(e) => setType(e.target.value)}>
             <option value="CASH">Cash</option>
             <option value="TOURNEY">Tourney</option>
           </select>
-          {mode === "edit" && <div className={ui.smallMuted}>(Type locked for MVP)</div>}
         </label>
       </div>
 
@@ -481,7 +468,6 @@ function endSession() {
         Currency: <strong>{currency || "—"}</strong>
       </div>
 
-      {/* ✅ Only Start/End datetime now */}
       <div className={ui.formRow2}>
         <label className={ui.field}>
           <span className={ui.label}>Start time</span>
@@ -558,10 +544,12 @@ function endSession() {
               <span className={ui.label}>Buy-in</span>
               <input className={ui.input} type="number" step="0.01" value={buyIn} onChange={(e) => setBuyIn(e.target.value)} />
             </label>
+
             <label className={ui.field}>
               <span className={ui.label}>Fee</span>
               <input className={ui.input} type="number" step="0.01" value={fee} onChange={(e) => setFee(e.target.value)} />
             </label>
+
             <label className={ui.field}>
               <span className={ui.label}>Winnings</span>
               <input className={ui.input} type="number" step="0.01" value={winnings} onChange={(e) => setWinnings(e.target.value)} />
@@ -573,6 +561,7 @@ function endSession() {
               <span className={ui.label}>Rebuys</span>
               <input className={ui.input} type="number" step="0.01" value={rebuys} onChange={(e) => setRebuys(e.target.value)} />
             </label>
+
             <label className={ui.field}>
               <span className={ui.label}>Add-ons</span>
               <input className={ui.input} type="number" step="0.01" value={addons} onChange={(e) => setAddons(e.target.value)} />

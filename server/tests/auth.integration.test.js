@@ -14,8 +14,6 @@ describe("Auth integration", () => {
   }, 20000);
 
   afterAll(async () => {
-    // keep your test DB tidy if you're using a dedicated test database
-    // (safe even if empty)
     try {
       await mongoose.connection.dropDatabase();
     } catch {}
@@ -32,6 +30,9 @@ describe("Auth integration", () => {
       .expect(201);
 
     const me = await agent.get("/api/auth/me").expect(200);
+
+    console.log(me.status, me.body);
+    expect(me.status).toBe(200);
 
     expect(me.body?.user?.email).toBe(email.toLowerCase());
     expect(me.body?.user?.passwordHash).toBeUndefined(); // should be stripped

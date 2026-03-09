@@ -10,12 +10,11 @@ import styles from "./login.module.css";
 const EMAIL_KEY = "rememberEmail";
 const REMEMBER_KEY = "rememberEmailEnabled";
 
-
 const GOOGLE_AUTH_URL = "http://localhost:4000/api/auth/google";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { refreshMe } = useAuth();
+  const { user, loading, refreshMe } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +24,11 @@ export default function LoginPage() {
 
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // If already logged in, bounce to dashboard
+  useEffect(() => {
+    if (!loading && user) router.replace("/dashboard");
+  }, [loading, user, router]);
 
   // Load remember-email state on mount
   useEffect(() => {
@@ -38,17 +42,17 @@ export default function LoginPage() {
         setEmail(savedEmail);
       }
     } catch {
-
+      // ignore
     }
   }, []);
 
-
+  // Persist remember-email setting
   useEffect(() => {
     try {
       localStorage.setItem(REMEMBER_KEY, String(rememberEmail));
       if (!rememberEmail) localStorage.removeItem(EMAIL_KEY);
     } catch {
-
+      // ignore
     }
   }, [rememberEmail]);
 
@@ -77,9 +81,14 @@ export default function LoginPage() {
     }
   }
 
+  // Optional: match other pages’ behavior
+  if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
+  if (user) return null;
+
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
+        {/* Left marketing panel */}
         <section className={styles.marketing}>
           <div className={styles.brandRow}>
             <div className={styles.logo}>
@@ -103,7 +112,7 @@ export default function LoginPage() {
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>🧾</span>
-              Keep searchable notes and hand histories for each session.
+              Keep detailed notes and hand histories for each session.
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>📈</span>
@@ -111,10 +120,12 @@ export default function LoginPage() {
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>🔒</span>
-              Secure and private. Your data is encrypted and will never be shared.
+              Secure and private. Your data is encrypted and will never be shared unless you choose to.
             </li>
           </ul>
         </section>
+
+        {/* Right login card */}
         <section className={styles.cardWrap}>
           <div className={styles.card}>
             <h1 className={styles.cardTitle}>Sign in</h1>

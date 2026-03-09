@@ -1,11 +1,19 @@
 {
   "name": "poker-bankroll-tracker",
   "private": true,
+  "workspaces": [
+    "server",
+    "web"
+  ],
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix web run dev\""
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix web run dev\"",
+    "test": "npm run test:server && npm run test:web",
+    "test:server": "npm --workspace server test",
+    "test:web": "npm --workspace web test",
+    "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\""
   },
   "keywords": [],
   "author": "",

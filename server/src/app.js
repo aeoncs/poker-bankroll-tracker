@@ -23,7 +23,7 @@ export function createApp() {
 
   app.use("/api/auth", authRoutes);
 
-  // Same routes, two names
+  // route aliases so I don't have to refactor earlier code
   app.use("/api/entries", entryRoutes);
   app.use("/api/sessions", entryRoutes);
 

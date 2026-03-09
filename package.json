@@ -5,9 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently -n SERVER,CLIENT -c auto \"npm:dev:server\" \"npm:dev:client\"",
-    "dev:server": "npm --prefix server run dev",
-    "dev:client": "npm --prefix client run dev"
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix web run dev\""
   },
   "keywords": [],
   "author": "",
@@ -15,5 +13,8 @@
   "type": "commonjs",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "recharts": "^3.7.0"
   }
 }

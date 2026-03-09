@@ -13,10 +13,11 @@ const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
 
-  
-    passwordHash: { type: String, required: false, default: "" },
+    // allow Google-only accounts
+    passwordHash: { type: String, default: "" },
 
-    googleId: { type: String, default: null, index: true },
+    // Google fields
+    googleId: { type: String, default: "", index: true },
     name: { type: String, default: "" },
     avatarUrl: { type: String, default: "" },
 
@@ -28,7 +29,7 @@ const userSchema = new mongoose.Schema(
     stakes: { type: [String], default: [] },
     locations: { type: [String], default: [] },
 
-    // default settings for new sessions
+    // defaults for new sessions
     defaultGame: { type: String, default: "" },
     defaultStake: { type: String, default: "" },
     defaultLocation: { type: String, default: "" },
@@ -38,5 +39,8 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 
 export const User = mongoose.model("User", userSchema);

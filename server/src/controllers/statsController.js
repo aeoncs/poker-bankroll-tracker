@@ -36,69 +36,101 @@ export async function getSummary(req, res, next) {
     if (dateFilter) match.date = dateFilter;
 
     const agg = await Entry.aggregate([
-      { $match: match },
-      {
-        $addFields: {
-          profit: {
-            $cond: [
-              { $eq: ["$type", "CASH"] },
-              { $subtract: ["$cashOut", "$buyIn"] },
-              {
-                $subtract: [
-                  "$winnings",
-                  { $add: ["$buyIn", "$fee", "$rebuys", "$addons"] },
-                ],
-              },
+  { $match: match },
+  {
+    $addFields: {
+      profit: {
+        $cond: [
+          { $eq: ["$type", "CASH"] },
+          { $subtract: ["$cashOut", "$buyIn"] },
+          {
+            $subtract: [
+              "$winnings",
+              { $add: ["$buyIn", "$fee", "$rebuys", "$addons"] },
             ],
           },
-          tourneyCost: { $add: ["$buyIn", "$fee", "$rebuys", "$addons"] },
-          durationHours: { $divide: ["$durationMinutes", 60] },
-        },
+        ],
       },
-      {
-        $group: {
-          _id: null,
-          totalProfit: { $sum: "$profit" },
-          count: { $sum: 1 },
+      tourneyCost: { $add: ["$buyIn", "$fee", "$rebuys", "$addons"] },
 
-          cashProfit: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, "$profit", 0] } },
-          cashHours: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, "$durationHours", 0] } },
-          cashCount: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, 1, 0] } },
 
-          tourneyProfit: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, "$profit", 0] } },
-          tourneyCostSum: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, "$tourneyCost", 0] } },
-          tourneyCount: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, 1, 0] } },
-        },
-      },
-    ]);
+      durationMinutesSafe: { $ifNull: ["$durationMinutes", 0] },
+    },
+  },
+  {
+    $group: {
+      _id: null,
 
-    const row = agg[0] || {
-      totalProfit: 0,
-      count: 0,
-      cashProfit: 0,
-      cashHours: 0,
-      cashCount: 0,
-      tourneyProfit: 0,
-      tourneyCostSum: 0,
-      tourneyCount: 0,
-    };
+      totalProfit: { $sum: "$profit" },
+      count: { $sum: 1 },
 
-    const bankrollTotal = startingBankroll + row.totalProfit;
+ 
+      totalMinutes: { $sum: "$durationMinutesSafe" },
+      winCount: { $sum: { $cond: [{ $gt: ["$profit", 0] }, 1, 0] } },
 
-    const cashHourly = row.cashHours > 0 ? row.cashProfit / row.cashHours : null;
-    const tourneyROI = row.tourneyCostSum > 0 ? row.tourneyProfit / row.tourneyCostSum : null;
+      cashProfit: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, "$profit", 0] } },
+      cashMinutes: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, "$durationMinutesSafe", 0] } },
+      cashCount: { $sum: { $cond: [{ $eq: ["$type", "CASH"] }, 1, 0] } },
 
-    res.json({
-      bankrollId,
-      bankrollName,
-      currency,
-      startingBankroll,
-      bankroll: bankrollTotal,
-      totalProfit: row.totalProfit,
-      counts: { entries: row.count, cash: row.cashCount, tourney: row.tourneyCount },
-      cash: { profit: row.cashProfit, hours: row.cashHours, hourly: cashHourly },
-      tourney: { profit: row.tourneyProfit, cost: row.tourneyCostSum, roi: tourneyROI },
-    });
+      tourneyProfit: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, "$profit", 0] } },
+      tourneyCostSum: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, "$tourneyCost", 0] } },
+      tourneyCount: { $sum: { $cond: [{ $eq: ["$type", "TOURNEY"] }, 1, 0] } },
+    },
+  },
+]);
+
+const row = agg[0] || {
+  totalProfit: 0,
+  count: 0,
+
+  totalMinutes: 0,
+  winCount: 0,
+
+  cashProfit: 0,
+  cashMinutes: 0,
+  cashCount: 0,
+
+  tourneyProfit: 0,
+  tourneyCostSum: 0,
+  tourneyCount: 0,
+};
+
+const bankrollTotal = startingBankroll + row.totalProfit;
+
+
+const cashHours = row.cashMinutes / 60;
+const cashHourly = cashHours > 0 ? row.cashProfit / cashHours : null;
+
+
+const tourneyROI = row.tourneyCostSum > 0 ? row.tourneyProfit / row.tourneyCostSum : null;
+
+
+const totalHours = row.totalMinutes / 60;
+const dollarsPerSession = row.count > 0 ? row.totalProfit / row.count : null;
+const winPct = row.count > 0 ? row.winCount / row.count : null;
+
+res.json({
+  bankrollId,
+  bankrollName,
+  currency,
+  startingBankroll,
+  bankroll: bankrollTotal,
+  totalProfit: row.totalProfit,
+
+
+  totals: {
+    minutes: row.totalMinutes,
+    hours: totalHours,
+    sessions: row.count,
+    wins: row.winCount,
+    winPct,
+    dollarsPerSession,
+  },
+
+  counts: { entries: row.count, cash: row.cashCount, tourney: row.tourneyCount },
+  cash: { profit: row.cashProfit, hours: cashHours, hourly: cashHourly },
+  tourney: { profit: row.tourneyProfit, cost: row.tourneyCostSum, roi: tourneyROI },
+});
   } catch (err) {
     next(err);
   }

@@ -21,6 +21,8 @@ const normalizeUnique = (arr) => {
 const updateSettingsSchema = z.object({
   defaultBankrollId: z.string().nullable().optional(),
 
+  theme: z.enum(["dark", "light"]).optional(),
+
   games: z.array(z.string().trim().min(1).max(50)).optional(),
   stakes: z.array(z.string().trim().min(1).max(30)).optional(),
   locations: z.array(z.string().trim().min(1).max(60)).optional(),
@@ -92,6 +94,9 @@ export async function updateSettings(req, res, next) {
       user.defaultLocation = "";
     }
 
+    //theme
+    if (parsed.theme) user.theme = parsed.theme;
+
     await user.save();
 
     res.json({
@@ -100,6 +105,7 @@ export async function updateSettings(req, res, next) {
         defaultGame: user.defaultGame || "",
         defaultStake: user.defaultStake || "",
         defaultLocation: user.defaultLocation || "",
+        theme: user.theme || "dark",
       },
     });
   } catch (err) {

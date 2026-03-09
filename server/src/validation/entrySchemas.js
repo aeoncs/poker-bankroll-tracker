@@ -25,10 +25,10 @@ const baseFields = {
 export const cashEntrySchema = z.object({
   ...baseFields,
   type: z.literal("CASH"),
-  stakes: z.string().trim().min(1).max(20).optional(), // can be required if you prefer
+  stakes: z.string().trim().min(1).max(20).optional(), 
   buyIn: z.number().min(0),
   cashOut: z.number().min(0),
-  durationMinutes: z.number().int().min(0).optional(), // allow server to compute
+  durationMinutes: z.number().int().min(0).optional(), 
 });
 
 export const tourneyEntrySchema = z.object({
@@ -41,7 +41,7 @@ export const tourneyEntrySchema = z.object({
   winnings: z.number().min(0).default(0),
   finishPosition: z.number().int().min(1).optional(),
   entrants: z.number().int().min(1).optional(),
-  durationMinutes: z.number().int().min(0).optional(), // allow server to compute
+  durationMinutes: z.number().int().min(0).optional(), 
 });
 
 export function parseEntry(body) {

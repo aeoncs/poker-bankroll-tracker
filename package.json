@@ -9,7 +9,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix web run dev\"",
+    "build": "next build",
+    "start": "next start",
+    "dev": "next dev",
     "test": "npm run test:server && npm run test:web",
     "test:server": "npm --workspace server test",
     "test:web": "npm --workspace web test",

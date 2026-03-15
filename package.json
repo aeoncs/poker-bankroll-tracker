@@ -18,7 +18,6 @@
     "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\"",
     "build:web": "npm run build --workspace web",
     "start:web": "npm run start --workspace web",
-    "build:server": "npm run build --workspace server",
     "start:server": "npm run start --workspace server"
   },
   "keywords": [],

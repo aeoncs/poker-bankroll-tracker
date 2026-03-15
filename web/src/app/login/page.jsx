@@ -10,7 +10,10 @@ import styles from "./login.module.css";
 const EMAIL_KEY = "rememberEmail";
 const REMEMBER_KEY = "rememberEmailEnabled";
 
-const GOOGLE_AUTH_URL = "http://localhost:4000/api/auth/google";
+const GOOGLE_AUTH_URL =
+  process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`
+    : "http://localhost:4000/api/auth/google";
 
 export default function LoginPage() {
   const router = useRouter();

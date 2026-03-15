@@ -15,12 +15,19 @@
     "test": "npm run test:server && npm run test:web",
     "test:server": "npm --workspace server test",
     "test:web": "npm --workspace web test",
-    "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\""
+    "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\"",
+    "build:web": "npm run build --workspace web",
+    "start:web": "npm run start --workspace web",
+    "build:server": "npm run build --workspace server",
+    "start:server": "npm run start --workspace server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": "22.x"
+  },
   "devDependencies": {
     "concurrently": "^9.2.1"
   },

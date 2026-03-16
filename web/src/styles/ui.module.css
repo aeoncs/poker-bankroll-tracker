@@ -1,6 +1,14 @@
 .page {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  min-width: 0;
+}
+
+.pagePadTop {
+  padding-top: 14px;
 }
 
 .page,
@@ -9,15 +17,20 @@
 }
 
 .narrowPage {
+  width: 100%;
   max-width: 860px;
   margin: 0 auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  min-width: 0;
 }
 
 .headerRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .title {
@@ -28,6 +41,12 @@
 
 .subtle {
   margin-top: 8px;
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+.subtleNoTop {
+  margin-top: 0;
   opacity: 0.85;
   font-size: 14px;
 }
@@ -46,6 +65,7 @@
   gap: 14px;
   flex-wrap: wrap;
   align-items: end;
+  min-width: 0;
 }
 
 .field,
@@ -53,10 +73,16 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .fieldTight {
   min-width: 220px;
+}
+
+.growField {
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
 .label {
@@ -69,7 +95,9 @@
   background: var(--panel);
   backdrop-filter: var(--blur);
   border-radius: 18px;
-  padding: 20px;
+  padding: 16px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cardGrid {
@@ -97,7 +125,6 @@
   font-weight: 900;
 }
 
-/* Dashboard coloring helpers */
 .goodValue {
   color: var(--success);
 }
@@ -110,6 +137,8 @@
 .select,
 .textarea {
   width: 100%;
+  min-width: 0;
+  min-height: 44px;
   background: var(--bg);
   border: 1px solid var(--border-strong);
   color: var(--text);
@@ -118,7 +147,6 @@
   outline: none;
   font-size: 15px;
   line-height: 1.2;
-  min-width: 0; /* prevents overflow in grids/flex */
 }
 
 .textarea {
@@ -135,6 +163,7 @@
 
 .button,
 .linkButton {
+  min-height: 44px;
   background: var(--brand);
   border: 1px solid var(--border-strong);
   color: var(--text);
@@ -176,6 +205,7 @@
 }
 
 .ghostButton {
+  min-height: 44px;
   background: transparent;
   border: 1px solid var(--border-strong);
   color: var(--text);
@@ -199,7 +229,7 @@
 .errorBanner {
   margin-top: 12px;
   border: 1px solid #3a1f28;
-  background: rgba(255, 107, 107, 0.10);
+  background: rgba(255, 107, 107, 0.1);
   border-radius: 14px;
   padding: 12px;
   color: var(--danger);
@@ -208,10 +238,16 @@
 
 .tableWrap {
   margin-top: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   border: 1px solid var(--border);
   background: var(--panel);
@@ -253,6 +289,8 @@
   display: inline-flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .smallLink {
@@ -276,6 +314,7 @@
 }
 
 .dangerButton {
+  min-height: 40px;
   color: var(--danger);
   background: transparent;
   border: 1px solid var(--danger-border);
@@ -296,13 +335,13 @@
   box-shadow: var(--shadow);
 }
 
-/* Settings helpers */
 .sectionHeaderRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .sectionTitleText {
@@ -312,10 +351,12 @@
 }
 
 .settingsGrid {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 @media (min-width: 900px) {
@@ -327,27 +368,31 @@
 
 .gridSpan2 {
   grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .centerStack {
+  width: 100%;
   max-width: 820px;
   margin: 0 auto;
   display: grid;
   gap: 14px;
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
 .compactPanel {
+  width: 100%;
   max-width: 820px;
   margin: 0 auto;
 }
 
 .selectCompact {
-  width: auto;
-  min-width: 260px;
+  width: 100%;
+  min-width: 0;
   max-width: 380px;
 }
 
-/* Modal */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -362,6 +407,8 @@
 .modalCard {
   width: 100%;
   max-width: 520px;
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
   border: 1px solid var(--border);
   background: var(--panel);
   backdrop-filter: var(--blur);
@@ -372,7 +419,7 @@
 
 .modalHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
@@ -415,12 +462,13 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 6px;
+  flex-wrap: wrap;
 }
 
-/* Masonry for the preference cards (Games/Stakes/Locations) */
 .prefsMasonry {
   column-count: 1;
   column-gap: 14px;
+  width: 100%;
 }
 
 @media (min-width: 900px) {
@@ -433,12 +481,12 @@
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;
-  display: inline-block;
+  display: block;
   width: 100%;
+  min-width: 0;
   margin: 0 0 14px;
 }
 
-/* Sessions list */
 .listCard {
   border: 1px solid var(--border);
   background: var(--panel);
@@ -449,10 +497,11 @@
 
 .listHeaderRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .scrollList {
@@ -466,7 +515,7 @@
   width: 10px;
 }
 .scrollList::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
 }
 
@@ -478,12 +527,10 @@
   border-radius: 16px;
   background: rgba(15, 23, 42, 0.04);
   overflow: hidden;
-
   padding: 12px 12px 12px 18px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
-
   transition: transform 0.08s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
@@ -548,13 +595,12 @@
   opacity: 0.85;
 }
 
-/* Session stats (Buy-in / Cash-out / Duration / $/hr) */
 .sessionStatsGrid {
   margin-top: 10px;
   display: grid;
-  grid-template-columns: 1fr 1fr; 
-  gap: 10px 18px;               
-  padding: 0 12px 12px;          
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+  padding: 0 12px 12px;
 }
 
 .sessionStat {
@@ -571,7 +617,6 @@
   word-break: break-word;
 }
 
-
 .valueGood {
   color: var(--success);
 }
@@ -580,7 +625,6 @@
   color: var(--danger);
 }
 
-/* Notes styling */
 .sessionNotes {
   margin-top: 10px;
   padding: 10px 12px 12px;
@@ -591,7 +635,6 @@
   line-height: 1.35;
 }
 
-/* entry form */
 .formStack {
   display: grid;
   gap: 12px;
@@ -602,6 +645,7 @@
   gap: 12px;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .formRow2 {
@@ -619,6 +663,7 @@
     grid-template-columns: 1fr 1fr;
     align-items: end;
   }
+
   .formRow3 {
     grid-template-columns: 1fr 1fr 1fr;
     align-items: end;
@@ -651,7 +696,6 @@
   align-items: center;
 }
 
-/* Header action spacing (Sessions) */
 .splitActions {
   display: flex;
   align-items: center;
@@ -659,22 +703,18 @@
   flex-wrap: wrap;
 }
 
-/* Collapsible panel header (Filters) */
 .collapseHeader {
   width: 100%;
   border: 1px solid var(--border);
   background: rgba(15, 23, 42, 0.04);
   color: var(--text);
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-
   padding: 10px 12px;
   border-radius: 14px;
-
   transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -703,7 +743,6 @@
   margin-top: 12px;
 }
 
-/* Filter toggle "switches" (pill buttons) */
 .filterGroups {
   display: grid;
   gap: 12px;
@@ -750,4 +789,152 @@
 .toggleOn:active {
   transform: translateY(1px);
   box-shadow: var(--shadow);
+}
+
+@media (min-width: 768px) {
+  .page,
+  .narrowPage,
+  .centerStack {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 899px) {
+  .selectCompact {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .sectionTitleText,
+  .modalTitle {
+    font-size: 18px;
+  }
+
+  .controls,
+  .controlsTight,
+  .modalActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controls {
+    gap: 10px;
+  }
+
+  .controlsTight {
+    gap: 8px;
+  }
+
+  .controls > *,
+  .controlsTight > * {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .controlsTight .field,
+  .controlsTight .growField,
+  .controlsTight .fieldTight {
+    flex: 0 0 auto;
+  }
+
+  .button,
+  .ghostButton,
+  .dangerButton,
+  .buttonNoShrink {
+    width: 100%;
+  }
+
+  .button,
+  .buttonNoShrink,
+  .ghostButton,
+  .dangerButton {
+    min-height: 42px;
+  }
+
+  .fieldTight {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .table {
+    min-width: 520px;
+  }
+
+  .sessionRow {
+    grid-template-columns: 1fr;
+  }
+
+  .rightCol {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 420px) {
+  .page,
+  .narrowPage,
+  .centerStack {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .pagePadTop {
+    padding-top: 10px;
+  }
+
+  .panel,
+  .modalCard,
+  .listCard {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .prefsMasonry {
+    column-count: 1;
+    column-gap: 0;
+  }
+
+  .prefsCard {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 12px;
+  }
+
+  .headerRow,
+  .sectionHeaderRow,
+  .listHeaderRow,
+  .modalHeader {
+    gap: 10px;
+  }
+
+  .table {
+    min-width: 480px;
+  }
+
+  .controlsTight {
+  gap: 6px;
+}
+
+.input,
+.select,
+.textarea {
+  min-height: 42px;
+}
+
+.button,
+.buttonNoShrink,
+.ghostButton,
+.dangerButton {
+  min-height: 40px;
+}
 }

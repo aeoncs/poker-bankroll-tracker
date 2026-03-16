@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +10,6 @@ import styles from "./login.module.css";
 
 const EMAIL_KEY = "rememberEmail";
 const REMEMBER_KEY = "rememberEmailEnabled";
-
 const GOOGLE_AUTH_URL = "/api/auth/google";
 
 export default function LoginPage() {
@@ -25,12 +25,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // If already logged in, bounce to dashboard
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
   }, [loading, user, router]);
 
-  // Load remember-email state on mount
   useEffect(() => {
     try {
       const enabled = localStorage.getItem(REMEMBER_KEY);
@@ -42,17 +42,19 @@ export default function LoginPage() {
         setEmail(savedEmail);
       }
     } catch {
-      // ignore
+      // ignore localStorage errors
     }
   }, []);
 
-  // Persist remember-email setting
   useEffect(() => {
     try {
       localStorage.setItem(REMEMBER_KEY, String(rememberEmail));
-      if (!rememberEmail) localStorage.removeItem(EMAIL_KEY);
+
+      if (!rememberEmail) {
+        localStorage.removeItem(EMAIL_KEY);
+      }
     } catch {
-      // ignore
+      // ignore localStorage errors
     }
   }, [rememberEmail]);
 
@@ -68,31 +70,41 @@ export default function LoginPage() {
         try {
           localStorage.setItem(EMAIL_KEY, email);
         } catch {
-          // ignore
+          // ignore localStorage errors
         }
       }
 
       await refreshMe();
       router.replace("/dashboard");
     } catch (err) {
-      setError(err.message || "Unable to sign in");
+      setError(err?.message || "Unable to sign in");
     } finally {
       setBusy(false);
     }
   }
 
-  // Optional: match other pages’ behavior
-  if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
-  if (user) return null;
+  if (loading) {
+    return <div style={{ padding: 24 }}>Loading…</div>;
+  }
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
-        {/* Left marketing panel */}
         <section className={styles.marketing}>
           <div className={styles.brandRow}>
             <div className={styles.logo}>
-              <img className={styles.logoImg} src="/logo.png" alt="Poker Bankroll Tracker logo" />
+              <Image
+                className={styles.logoImg}
+                src="/logo.png"
+                alt="Poker Bankroll Tracker logo"
+                width={128}
+                height={128}
+                priority
+              />
             </div>
 
             <div>
@@ -108,7 +120,7 @@ export default function LoginPage() {
           <ul className={styles.bullets}>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>💼</span>
-              Customize and Track multiple Bankrolls (Cash / Online / Tournaments)
+              Customize and track multiple bankrolls (cash / online / tournaments)
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>🧾</span>
@@ -125,7 +137,6 @@ export default function LoginPage() {
           </ul>
         </section>
 
-        {/* Right login card */}
         <section className={styles.cardWrap}>
           <div className={styles.card}>
             <h1 className={styles.cardTitle}>Sign in</h1>
@@ -142,6 +153,7 @@ export default function LoginPage() {
                 <span className={styles.label}>Email</span>
                 <input
                   className={styles.input}
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -168,7 +180,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     className={styles.ghostButton}
-                    onClick={() => setShowPassword((v) => !v)}
+                    onClick={() => setShowPassword((prev) => !prev)}
                     disabled={busy}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
@@ -199,7 +211,13 @@ export default function LoginPage() {
                 }}
                 disabled={busy}
               >
-                <img className={styles.googleButtonImg} src="/google_sign_in.png" alt="Sign in with Google" />
+                <Image
+                  className={styles.googleButtonImg}
+                  src="/google_sign_in.png"
+                  alt="Sign in with Google"
+                  width={220}
+                  height={49}
+                />
               </button>
             </form>
 

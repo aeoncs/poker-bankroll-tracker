@@ -9,17 +9,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "next build",
-    "start": "next start",
-    "dev": "next dev",
-    "test": "npm run test:server && npm run test:web",
-    "test:server": "npm --workspace server test",
-    "test:web": "npm --workspace web test",
-    "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\"",
-    "build:web": "npm run build --workspace web",
-    "start:web": "npm run start --workspace web",
-    "start:server": "npm run start --workspace server"
-  },
+  "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace web\"",
+  "dev:server": "npm run dev --workspace server",
+  "dev:web": "npm run dev --workspace web",
+
+  "build": "npm run build --workspace web",
+  "start": "concurrently \"npm run start --workspace server\" \"npm run start --workspace web\"",
+
+  "test": "npm run test:server && npm run test:web",
+  "test:server": "npm --workspace server test",
+  "test:web": "npm --workspace web test",
+  "test:watch": "concurrently \"npm --workspace server test -- --watch\" \"npm --workspace web test -- --watch\"",
+
+  "build:web": "npm run build --workspace web",
+  "start:web": "npm run start --workspace web",
+  "start:server": "npm run start --workspace server"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

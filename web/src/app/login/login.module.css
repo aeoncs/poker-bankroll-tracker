@@ -1,9 +1,9 @@
 .page {
-  height: 100dvh;         
-  min-height: 100vh;      
-  overflow: hidden;       
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-  background:url("/login-bg.png");
+  background: url("/login-bg.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -15,28 +15,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 126px 18px;    
-}
 
+  padding: 24px 14px 32px;
+}
 
 .page * {
   box-sizing: border-box;
 }
 
-
 .shell {
   width: 100%;
   max-width: 1100px;
-  flex: 1;           
-  min-height: 0;    
   display: grid;
   gap: 16px;
 }
 
 @media (min-width: 900px) {
+  .page {
+    padding: 72px 18px 40px;
+  }
+
   .shell {
-    grid-template-columns: 1.35fr 0.65fr; 
-    align-items: start;               
+    grid-template-columns: 1.35fr 0.65fr;
+    align-items: start;
     gap: 22px;
   }
 }
@@ -46,24 +47,31 @@
   background: rgba(15, 21, 32, 0.75);
   backdrop-filter: blur(8px);
   border-radius: 18px;
-  padding: 24px;
+  padding: 18px;
+}
+
+@media (min-width: 768px) {
+  .marketing {
+    padding: 24px;
+  }
 }
 
 .brandRow {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
 }
 
 .logo {
-  width: 128px;
-  height: 128px;
+  width: 72px;
+  height: 72px;
   border-radius: 14px;
   display: grid;
   place-items: center;
   background: #172236;
   border: 1px solid #27344a;
   font-size: 20px;
+  flex: 0 0 auto;
 }
 
 .logoImg {
@@ -75,15 +83,16 @@
 
 .brand {
   font-weight: 900;
-  font-size: 36px; 
+  font-size: 1.5rem;
+  line-height: 1.1;
   letter-spacing: 0.2px;
 }
 
 .tagline {
   margin-top: 6px;
   opacity: 0.9;
-  font-size: 20px; 
-  line-height: 1.35;
+  font-size: 0.98rem;
+  line-height: 1.4;
 }
 
 .bullets {
@@ -92,14 +101,14 @@
   list-style: none;
   display: grid;
   gap: 12px;
-  font-size: 18px; 
+  font-size: 0.98rem;
 }
 
 .bullet {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  line-height: 1.35;
+  line-height: 1.4;
   opacity: 0.95;
 }
 
@@ -108,6 +117,7 @@
   display: inline-flex;
   justify-content: center;
   margin-top: 1px;
+  flex: 0 0 auto;
 }
 
 .note {
@@ -116,35 +126,47 @@
   border-radius: 14px;
   background: rgba(11, 15, 20, 0.7);
   border: 1px solid #27344a;
-  font-size: 14px; /* bigger */
+  font-size: 14px;
   opacity: 0.9;
 }
 
 .cardWrap {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 900px) {
+  .cardWrap {
+    justify-content: flex-end;
+  }
 }
 
 .card {
   width: 100%;
+  max-width: 400px;
   border: 1px solid #1c2533;
   background: rgba(15, 21, 32, 0.85);
   backdrop-filter: blur(8px);
   border-radius: 18px;
-  padding: 20px;
-  max-width: 400px;
+  padding: 18px;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 20px;
+  }
 }
 
 .cardTitle {
   margin: 0;
-  font-size: 24px; 
+  font-size: 1.5rem;
   font-weight: 900;
 }
 
 .cardSubtitle {
   margin: 8px 0 0 0;
   opacity: 0.9;
-  font-size: 15px; /* bigger */
+  font-size: 15px;
 }
 
 .errorBanner {
@@ -179,20 +201,20 @@
 }
 
 .label {
-  font-size: 14px; 
+  font-size: 14px;
   opacity: 0.9;
 }
 
-
 .input {
   width: 100%;
+  min-height: 44px;
   background: #0b0f14;
   border: 1px solid #27344a;
   color: #e7eef7;
   border-radius: 12px;
-  padding: 10px 12px; 
+  padding: 10px 12px;
   outline: none;
-  font-size: 15px; 
+  font-size: 15px;
   line-height: 1.2;
 }
 
@@ -200,7 +222,6 @@
   border-color: #93b6ea;
   box-shadow: 0 0 0 3px rgba(58, 82, 119, 0.25);
 }
-
 
 .passwordRow {
   display: flex;
@@ -210,11 +231,12 @@
 
 .passwordRow .input {
   flex: 1;
-  min-width: 0; 
+  min-width: 0;
 }
 
 .ghostButton {
   flex: 0 0 auto;
+  min-height: 44px;
   background: transparent;
   border: 1px solid #27344a;
   color: #e7eef7;
@@ -246,11 +268,12 @@
 
 .primaryButton {
   margin-top: 2px;
+  min-height: 44px;
   background: #172236;
   border: 1px solid #27344a;
   color: #e7eef7;
   border-radius: 12px;
-  padding: 12px 12px;
+  padding: 12px;
   cursor: pointer;
   font-weight: 900;
   font-size: 15px;
@@ -273,7 +296,6 @@
   box-shadow: 0 0 0 3px rgba(58, 82, 119, 0.35);
 }
 
-
 .primaryButton:disabled,
 .input:disabled,
 .ghostButton:disabled {
@@ -286,6 +308,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
   font-size: 14px;
   opacity: 0.95;
 }
@@ -300,29 +323,26 @@
   text-decoration: underline;
 }
 
-
 .googleButton {
-  /* Make button behave like an image container */
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: stretch;
 
-  /* Remove default button look */
+  min-height: 44px;
   background: transparent;
   border: 0;
   padding: 0;
   margin: 0;
 
   cursor: pointer;
-  border-radius: 12px; /* matches common button rounding */
+  border-radius: 12px;
   overflow: hidden;
 
-  /* Smooth interactions */
   transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Fully responsive image */
 .googleButtonImg {
   display: block;
   width: 100%;
@@ -330,30 +350,68 @@
   height: auto;
 }
 
-/* Hover */
 .googleButton:hover {
   transform: translateY(-1px);
   filter: brightness(1.03);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Pressed */
 .googleButton:active {
   transform: translateY(0px) scale(0.98);
   filter: brightness(0.98);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Keyboard accessibility */
 .googleButton:focus-visible {
   outline: 3px solid rgba(59, 130, 246, 0.6);
   outline-offset: 3px;
 }
 
-/* Optional: if you place it in a narrow container, let it shrink nicely */
+@media (max-width: 520px) {
+  .brandRow {
+    align-items: flex-start;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .brand {
+    font-size: 1.25rem;
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+  }
+
+  .bullets {
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 420px) {
+  .page {
+    padding: 16px 12px 24px;
+  }
+
+  .marketing,
+  .card {
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .passwordRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ghostButton {
+    width: 100%;
+  }
+
   .googleButtonImg {
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
   }
 }

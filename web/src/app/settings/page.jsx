@@ -37,7 +37,6 @@ export default function SettingsPage() {
 
   const [defaultBankrollId, setDefaultBankrollId] = useState(user?.defaultBankrollId || "");
 
-  // Preferences lists
   const [games, setGames] = useState(user?.games ? user.games : PRESET_GAMES);
   const [stakes, setStakes] = useState(user?.stakes || []);
   const [locations, setLocations] = useState(user?.locations || []);
@@ -46,18 +45,15 @@ export default function SettingsPage() {
   const [stakeInput, setStakeInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
 
-  // Defaults
   const [defaultGame, setDefaultGame] = useState(user?.defaultGame || "");
   const [defaultStake, setDefaultStake] = useState(user?.defaultStake || "");
   const [defaultLocation, setDefaultLocation] = useState(user?.defaultLocation || "");
 
-  // Inline bankroll edit
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editCurrency, setEditCurrency] = useState("");
   const [editStarting, setEditStarting] = useState("");
 
-  // Create bankroll modal
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("Main");
   const [newCurrency, setNewCurrency] = useState("USD");
@@ -66,7 +62,6 @@ export default function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  // Auto-save status
   const [saveStatus, setSaveStatus] = useState("");
   const hydratedRef = useRef(false);
   const lastSentRef = useRef("");
@@ -148,7 +143,6 @@ export default function SettingsPage() {
     fn();
   }
 
-  // Bankroll actions
   function startEdit(b) {
     setEditId(b._id);
     setEditName(b.name ?? "");
@@ -238,7 +232,6 @@ export default function SettingsPage() {
     }
   }
 
-  // Games/Stakes/Locations actions
   function addGame() {
     const v = gameInput.trim();
     if (!v) return;
@@ -314,349 +307,351 @@ export default function SettingsPage() {
   return (
     <RequireAuth requireOnboarding={true}>
       <>
-        {/* ✅ Nav aligned to page width (so it sits above settings content, not top-left of viewport) */}
-        <div className={ui.page} style={{ paddingTop: 18 }}>
-          <AppNav />
+        <div className={ui.pagePadTop}>
+          <div className={ui.page}>
+            <AppNav />
+          </div>
         </div>
 
-        {/* ✅ Settings content */}
-        <div className={`${ui.page} ${ui.settingsGrid}`} style={{ paddingTop: 18 }}>
-          <div className={ui.headerRow}>
-            <h1 className={ui.title}>Settings</h1>
-            <div className={ui.subtle}>{saveStatus}</div>
-          </div>
-
-          {error && <div className={ui.errorBanner}>{error}</div>}
-
-          {/* Bankrolls */}
-          <div className={`${ui.panel} ${ui.gridSpan2}`}>
-            <div className={ui.sectionHeaderRow}>
-              <h2 className={ui.sectionTitleText}>Bankrolls</h2>
-              <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={openCreateModal} disabled={busy}>
-                Create Bankroll
-              </button>
+        <div className={ui.pagePadTop}>
+          <div className={`${ui.page} ${ui.settingsGrid}`}>
+            <div className={ui.headerRow}>
+              <h1 className={ui.title}>Settings</h1>
+              <div className={ui.subtleNoTop}>{saveStatus}</div>
             </div>
 
-            <div className={ui.controlsTight}>
-              <label className={ui.fieldTight}>
-                <span className={ui.label}>Default bankroll</span>
-                <select
-                  className={`${ui.select} ${ui.selectCompact}`}
-                  value={defaultBankrollId}
-                  onChange={(e) => setDefaultBankrollId(e.target.value)}
-                  disabled={busy || bankrolls.length === 0}
-                >
-                  <option value="">None</option>
-                  {bankrolls.map((b) => (
-                    <option key={b._id} value={b._id}>
-                      {b.name} ({b.currency})
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            {error && <div className={ui.errorBanner}>{error}</div>}
 
-            <div className={ui.tableWrap}>
-              {bankrolls.length === 0 ? (
-                <div className={ui.subtle}>No bankrolls yet. Use “Create Bankroll” to add one.</div>
-              ) : (
-                <table className={ui.table}>
-                  <thead>
-                    <tr>
-                      <th className={ui.th}>Name</th>
-                      <th className={ui.th}>Currency</th>
-                      <th className={ui.th}>Starting</th>
-                      <th className={ui.thRight}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bankrolls.map((b) => {
-                      const isEditing = editId === b._id;
-                      return (
-                        <tr key={b._id} className={ui.tr}>
-                          <td className={ui.td}>
-                            {isEditing ? (
-                              <input className={ui.input} value={editName} onChange={(e) => setEditName(e.target.value)} disabled={busy} />
-                            ) : (
-                              b.name
-                            )}
-                          </td>
-
-                          <td className={ui.td}>
-                            {isEditing ? (
-                              <input className={ui.input} value={editCurrency} onChange={(e) => setEditCurrency(e.target.value.toUpperCase())} disabled={busy} />
-                            ) : (
-                              b.currency
-                            )}
-                          </td>
-
-                          <td className={ui.td}>
-                            {isEditing ? (
-                              <input className={ui.input} type="number" min="0" step="0.01" value={editStarting} onChange={(e) => setEditStarting(e.target.value)} disabled={busy} />
-                            ) : (
-                              b.startingBankroll
-                            )}
-                          </td>
-
-                          <td className={ui.tdRight}>
-                            {isEditing ? (
-                              <div className={ui.rowActions}>
-                                <button className={ui.button} type="button" onClick={() => onSaveBankrollEdit(b._id)} disabled={busy}>
-                                  Save
-                                </button>
-                                <button className={ui.ghostButton} type="button" onClick={cancelEdit} disabled={busy}>
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <div className={ui.rowActions}>
-                                <button className={ui.ghostButton} type="button" onClick={() => startEdit(b)} disabled={busy}>
-                                  Edit
-                                </button>
-                                <button className={ui.dangerButton} type="button" onClick={() => onDeleteBankroll(b._id, b.name)} disabled={busy}>
-                                  Delete
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
-          {/* Preferences */}
-          <div className={`${ui.gridSpan2} ${ui.prefsMasonry}`}>
-            {/* Games */}
-            <div className={`${ui.panel} ${ui.prefsCard}`}>
+            <div className={`${ui.panel} ${ui.gridSpan2}`}>
               <div className={ui.sectionHeaderRow}>
-                <h2 className={ui.sectionTitleText}>Games</h2>
-              </div>
-
-              <label className={ui.fieldTight}>
-                <span className={ui.label}>Default game</span>
-                <select className={`${ui.select} ${ui.selectCompact}`} value={defaultGame} onChange={(e) => setDefaultGame(e.target.value)} disabled={busy}>
-                  <option value="">None</option>
-                  {games.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className={ui.controlsTight}>
-                <label className={ui.field} style={{ flex: 1 }}>
-                  <input
-                    className={ui.input}
-                    value={gameInput}
-                    onChange={(e) => setGameInput(e.target.value)}
-                    onKeyDown={(e) => onEnterDo(e, addGame)}
-                    placeholder='Add a new game - e.g. "Big O"'
-                    disabled={busy}
-                  />
-                </label>
-                <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addGame} disabled={busy}>
-                  Add
+                <h2 className={ui.sectionTitleText}>Bankrolls</h2>
+                <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={openCreateModal} disabled={busy}>
+                  Create Bankroll
                 </button>
               </div>
 
+              <div className={ui.controlsTight}>
+                <label className={ui.fieldTight}>
+                  <span className={ui.label}>Default bankroll</span>
+                  <select
+                    className={`${ui.select} ${ui.selectCompact}`}
+                    value={defaultBankrollId}
+                    onChange={(e) => setDefaultBankrollId(e.target.value)}
+                    disabled={busy || bankrolls.length === 0}
+                  >
+                    <option value="">None</option>
+                    {bankrolls.map((b) => (
+                      <option key={b._id} value={b._id}>
+                        {b.name} ({b.currency})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
               <div className={ui.tableWrap}>
-                {games.length === 0 ? (
-                  <div className={ui.subtle}>No games yet.</div>
+                {bankrolls.length === 0 ? (
+                  <div className={ui.subtle}>No bankrolls yet. Use “Create Bankroll” to add one.</div>
                 ) : (
                   <table className={ui.table}>
+                    <thead>
+                      <tr>
+                        <th className={ui.th}>Name</th>
+                        <th className={ui.th}>Currency</th>
+                        <th className={ui.th}>Starting</th>
+                        <th className={ui.thRight}></th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      {games.map((g) => (
-                        <tr key={g} className={ui.tr}>
-                          <td className={ui.td}>{g}</td>
-                          <td className={ui.tdRight}>
-                            <div className={ui.rowActions}>
-                              <button className={ui.ghostButton} type="button" onClick={() => editGame(g)} disabled={busy}>
-                                Edit
-                              </button>
-                              <button className={ui.dangerButton} type="button" onClick={() => removeGame(g)} disabled={busy}>
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                      {bankrolls.map((b) => {
+                        const isEditing = editId === b._id;
+                        return (
+                          <tr key={b._id} className={ui.tr}>
+                            <td className={ui.td} data-label="Name">
+                              {isEditing ? (
+                                <input className={ui.input} value={editName} onChange={(e) => setEditName(e.target.value)} disabled={busy} />
+                              ) : (
+                                b.name
+                              )}
+                            </td>
+
+                            <td className={ui.td} data-label="Currency">
+                              {isEditing ? (
+                                <input className={ui.input} value={editCurrency} onChange={(e) => setEditCurrency(e.target.value.toUpperCase())} disabled={busy} />
+                              ) : (
+                                b.currency
+                              )}
+                            </td>
+
+                            <td className={ui.td} data-label="Starting">
+                              {isEditing ? (
+                                <input className={ui.input} type="number" min="0" step="0.01" value={editStarting} onChange={(e) => setEditStarting(e.target.value)} disabled={busy} />
+                              ) : (
+                                b.startingBankroll
+                              )}
+                            </td>
+
+                            <td className={ui.tdRight} data-label="Actions">
+                              {isEditing ? (
+                                <div className={ui.rowActions}>
+                                  <button className={ui.button} type="button" onClick={() => onSaveBankrollEdit(b._id)} disabled={busy}>
+                                    Save
+                                  </button>
+                                  <button className={ui.ghostButton} type="button" onClick={cancelEdit} disabled={busy}>
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className={ui.rowActions}>
+                                  <button className={ui.ghostButton} type="button" onClick={() => startEdit(b)} disabled={busy}>
+                                    Edit
+                                  </button>
+                                  <button className={ui.dangerButton} type="button" onClick={() => onDeleteBankroll(b._id, b.name)} disabled={busy}>
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}
               </div>
             </div>
 
-            {/* Stakes */}
-            <div className={`${ui.panel} ${ui.prefsCard}`}>
-              <div className={ui.sectionHeaderRow}>
-                <h2 className={ui.sectionTitleText}>Stakes</h2>
-              </div>
+            <div className={`${ui.gridSpan2} ${ui.prefsMasonry}`}>
+              <div className={`${ui.panel} ${ui.prefsCard}`}>
+                <div className={ui.sectionHeaderRow}>
+                  <h2 className={ui.sectionTitleText}>Games</h2>
+                </div>
 
-              <label className={ui.fieldTight}>
-                <span className={ui.label}>Default stake</span>
-                <select className={`${ui.select} ${ui.selectCompact}`} value={defaultStake} onChange={(e) => setDefaultStake(e.target.value)} disabled={busy}>
-                  <option value="">None</option>
-                  {stakes.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className={ui.controlsTight}>
-                <label className={ui.field} style={{ flex: 1 }}>
-                  <input
-                    className={ui.input}
-                    value={stakeInput}
-                    onChange={(e) => setStakeInput(e.target.value)}
-                    onKeyDown={(e) => onEnterDo(e, addStake)}
-                    placeholder='Add a new Stake - "1/2", "2/5", "NL50"'
-                    disabled={busy}
-                  />
+                <label className={ui.fieldTight}>
+                  <span className={ui.label}>Default game</span>
+                  <select className={`${ui.select} ${ui.selectCompact}`} value={defaultGame} onChange={(e) => setDefaultGame(e.target.value)} disabled={busy}>
+                    <option value="">None</option>
+                    {games.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
                 </label>
-                <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addStake} disabled={busy}>
-                  Add
-                </button>
-              </div>
 
-              <div className={ui.tableWrap}>
-                {stakes.length === 0 ? (
-                  <div className={ui.subtle}>No stakes yet.</div>
-                ) : (
-                  <table className={ui.table}>
-                    <tbody>
-                      {stakes.map((s) => (
-                        <tr key={s} className={ui.tr}>
-                          <td className={ui.td}>{s}</td>
-                          <td className={ui.tdRight}>
-                            <div className={ui.rowActions}>
-                              <button className={ui.ghostButton} type="button" onClick={() => editStake(s)} disabled={busy}>
-                                Edit
-                              </button>
-                              <button className={ui.dangerButton} type="button" onClick={() => removeStake(s)} disabled={busy}>
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-
-            {/* Locations */}
-            <div className={`${ui.panel} ${ui.prefsCard}`}>
-              <div className={ui.sectionHeaderRow}>
-                <h2 className={ui.sectionTitleText}>Locations</h2>
-              </div>
-
-              <label className={ui.fieldTight}>
-                <span className={ui.label}>Default location</span>
-                <select className={`${ui.select} ${ui.selectCompact}`} value={defaultLocation} onChange={(e) => setDefaultLocation(e.target.value)} disabled={busy}>
-                  <option value="">None</option>
-                  {locations.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className={ui.controlsTight}>
-                <label className={ui.field} style={{ flex: 1 }}>
-                  <input
-                    className={ui.input}
-                    value={locationInput}
-                    onChange={(e) => setLocationInput(e.target.value)}
-                    onKeyDown={(e) => onEnterDo(e, addLocation)}
-                    placeholder='Add a new location - "Bellagio", "Home Game"'
-                    disabled={busy}
-                  />
-                </label>
-                <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addLocation} disabled={busy}>
-                  Add
-                </button>
-              </div>
-
-              <div className={ui.tableWrap}>
-                {locations.length === 0 ? (
-                  <div className={ui.subtle}>No locations yet.</div>
-                ) : (
-                  <table className={ui.table}>
-                    <tbody>
-                      {locations.map((l) => (
-                        <tr key={l} className={ui.tr}>
-                          <td className={ui.td}>{l}</td>
-                          <td className={ui.tdRight}>
-                            <div className={ui.rowActions}>
-                              <button className={ui.ghostButton} type="button" onClick={() => editLocation(l)} disabled={busy}>
-                                Edit
-                              </button>
-                              <button className={ui.dangerButton} type="button" onClick={() => removeLocation(l)} disabled={busy}>
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Create Bankroll Modal */}
-          {showCreate && (
-            <div className={ui.modalOverlay} role="dialog" aria-modal="true" onMouseDown={closeCreateModal}>
-              <div className={ui.modalCard} onMouseDown={(e) => e.stopPropagation()}>
-                <div className={ui.modalHeader}>
-                  <h2 className={ui.modalTitle}>Create bankroll</h2>
-                  <button className={ui.ghostButton} type="button" onClick={closeCreateModal} disabled={busy}>
-                    ✕
+                <div className={ui.controlsTight}>
+                  <label className={`${ui.field} ${ui.growField}`}>
+                    <input
+                      className={ui.input}
+                      value={gameInput}
+                      onChange={(e) => setGameInput(e.target.value)}
+                      onKeyDown={(e) => onEnterDo(e, addGame)}
+                      placeholder='Add a new game - e.g. "Big O"'
+                      disabled={busy}
+                    />
+                  </label>
+                  <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addGame} disabled={busy}>
+                    Add
                   </button>
                 </div>
 
-                <form className={ui.modalForm} onSubmit={onCreateBankrollModalSubmit}>
-                  <label className={ui.field}>
-                    <span className={ui.label}>Name</span>
-                    <input className={ui.input} value={newName} onChange={(e) => setNewName(e.target.value)} disabled={busy} autoFocus />
+                <div className={ui.tableWrap}>
+                  {games.length === 0 ? (
+                    <div className={ui.subtle}>No games yet.</div>
+                  ) : (
+                    <table className={ui.table}>
+                      <tbody>
+                        {games.map((g) => (
+                          <tr key={g} className={ui.tr}>
+                            <td className={ui.td} data-label="Game">
+                              {g}
+                            </td>
+                            <td className={ui.tdRight} data-label="Actions">
+                              <div className={ui.rowActions}>
+                                <button className={ui.ghostButton} type="button" onClick={() => editGame(g)} disabled={busy}>
+                                  Edit
+                                </button>
+                                <button className={ui.dangerButton} type="button" onClick={() => removeGame(g)} disabled={busy}>
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+
+              <div className={`${ui.panel} ${ui.prefsCard}`}>
+                <div className={ui.sectionHeaderRow}>
+                  <h2 className={ui.sectionTitleText}>Stakes</h2>
+                </div>
+
+                <label className={ui.fieldTight}>
+                  <span className={ui.label}>Default stake</span>
+                  <select className={`${ui.select} ${ui.selectCompact}`} value={defaultStake} onChange={(e) => setDefaultStake(e.target.value)} disabled={busy}>
+                    <option value="">None</option>
+                    {stakes.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className={ui.controlsTight}>
+                  <label className={`${ui.field} ${ui.growField}`}>
+                    <input
+                      className={ui.input}
+                      value={stakeInput}
+                      onChange={(e) => setStakeInput(e.target.value)}
+                      onKeyDown={(e) => onEnterDo(e, addStake)}
+                      placeholder='Add a new Stake - "1/2", "2/5", "NL50"'
+                      disabled={busy}
+                    />
                   </label>
+                  <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addStake} disabled={busy}>
+                    Add
+                  </button>
+                </div>
 
-                  <div className={ui.modalRow2}>
-                    <label className={ui.field}>
-                      <span className={ui.label}>Currency</span>
-                      <input className={ui.input} value={newCurrency} onChange={(e) => setNewCurrency(e.target.value.toUpperCase())} disabled={busy} />
-                    </label>
+                <div className={ui.tableWrap}>
+                  {stakes.length === 0 ? (
+                    <div className={ui.subtle}>No stakes yet.</div>
+                  ) : (
+                    <table className={ui.table}>
+                      <tbody>
+                        {stakes.map((s) => (
+                          <tr key={s} className={ui.tr}>
+                            <td className={ui.td} data-label="Stake">
+                              {s}
+                            </td>
+                            <td className={ui.tdRight} data-label="Actions">
+                              <div className={ui.rowActions}>
+                                <button className={ui.ghostButton} type="button" onClick={() => editStake(s)} disabled={busy}>
+                                  Edit
+                                </button>
+                                <button className={ui.dangerButton} type="button" onClick={() => removeStake(s)} disabled={busy}>
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
 
-                    <label className={ui.field}>
-                      <span className={ui.label}>Starting</span>
-                      <input className={ui.input} type="number" min="0" step="0.01" value={newStarting} onChange={(e) => setNewStarting(e.target.value)} disabled={busy} />
-                    </label>
-                  </div>
+              <div className={`${ui.panel} ${ui.prefsCard}`}>
+                <div className={ui.sectionHeaderRow}>
+                  <h2 className={ui.sectionTitleText}>Locations</h2>
+                </div>
 
-                  <div className={ui.modalActions}>
-                    <button className={ui.ghostButton} type="button" onClick={closeCreateModal} disabled={busy}>
-                      Cancel
-                    </button>
-                    <button className={ui.button} type="submit" disabled={busy}>
-                      {busy ? "Creating…" : "Create"}
-                    </button>
-                  </div>
+                <label className={ui.fieldTight}>
+                  <span className={ui.label}>Default location</span>
+                  <select className={`${ui.select} ${ui.selectCompact}`} value={defaultLocation} onChange={(e) => setDefaultLocation(e.target.value)} disabled={busy}>
+                    <option value="">None</option>
+                    {locations.map((l) => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                  <div className={ui.subtle}>Bankroll names must be unique.</div>
-                </form>
+                <div className={ui.controlsTight}>
+                  <label className={`${ui.field} ${ui.growField}`}>
+                    <input
+                      className={ui.input}
+                      value={locationInput}
+                      onChange={(e) => setLocationInput(e.target.value)}
+                      onKeyDown={(e) => onEnterDo(e, addLocation)}
+                      placeholder='Add a new location - "Bellagio", "Home Game"'
+                      disabled={busy}
+                    />
+                  </label>
+                  <button className={`${ui.button} ${ui.buttonNoShrink}`} type="button" onClick={addLocation} disabled={busy}>
+                    Add
+                  </button>
+                </div>
+
+                <div className={ui.tableWrap}>
+                  {locations.length === 0 ? (
+                    <div className={ui.subtle}>No locations yet.</div>
+                  ) : (
+                    <table className={ui.table}>
+                      <tbody>
+                        {locations.map((l) => (
+                          <tr key={l} className={ui.tr}>
+                            <td className={ui.td} data-label="Location">
+                              {l}
+                            </td>
+                            <td className={ui.tdRight} data-label="Actions">
+                              <div className={ui.rowActions}>
+                                <button className={ui.ghostButton} type="button" onClick={() => editLocation(l)} disabled={busy}>
+                                  Edit
+                                </button>
+                                <button className={ui.dangerButton} type="button" onClick={() => removeLocation(l)} disabled={busy}>
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               </div>
             </div>
-          )}
+
+            {showCreate && (
+              <div className={ui.modalOverlay} role="dialog" aria-modal="true" onMouseDown={closeCreateModal}>
+                <div className={ui.modalCard} onMouseDown={(e) => e.stopPropagation()}>
+                  <div className={ui.modalHeader}>
+                    <h2 className={ui.modalTitle}>Create bankroll</h2>
+                    <button className={ui.ghostButton} type="button" onClick={closeCreateModal} disabled={busy}>
+                      ✕
+                    </button>
+                  </div>
+
+                  <form className={ui.modalForm} onSubmit={onCreateBankrollModalSubmit}>
+                    <label className={ui.field}>
+                      <span className={ui.label}>Name</span>
+                      <input className={ui.input} value={newName} onChange={(e) => setNewName(e.target.value)} disabled={busy} autoFocus />
+                    </label>
+
+                    <div className={ui.modalRow2}>
+                      <label className={ui.field}>
+                        <span className={ui.label}>Currency</span>
+                        <input className={ui.input} value={newCurrency} onChange={(e) => setNewCurrency(e.target.value.toUpperCase())} disabled={busy} />
+                      </label>
+
+                      <label className={ui.field}>
+                        <span className={ui.label}>Starting</span>
+                        <input className={ui.input} type="number" min="0" step="0.01" value={newStarting} onChange={(e) => setNewStarting(e.target.value)} disabled={busy} />
+                      </label>
+                    </div>
+
+                    <div className={ui.modalActions}>
+                      <button className={ui.ghostButton} type="button" onClick={closeCreateModal} disabled={busy}>
+                        Cancel
+                      </button>
+                      <button className={ui.button} type="submit" disabled={busy}>
+                        {busy ? "Creating…" : "Create"}
+                      </button>
+                    </div>
+
+                    <div className={ui.subtle}>Bankroll names must be unique.</div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </>
     </RequireAuth>

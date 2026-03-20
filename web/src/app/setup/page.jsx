@@ -41,15 +41,12 @@ export default function SetupPage() {
   const router = useRouter();
   const { user, refreshMe } = useAuth();
 
-  // bankroll
   const [bankrollName, setBankrollName] = useState("Main");
   const [currency, setCurrency] = useState("USD");
   const [startingBankroll, setStartingBankroll] = useState("1000");
 
-  // theme preference to save during setup
   const [theme, setTheme] = useState("dark");
 
-  // preferences
   const [games, setGames] = useState(["No Limit Holdem"]);
   const [customGame, setCustomGame] = useState("");
 
@@ -62,12 +59,10 @@ export default function SetupPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  // If already completed onboarding, route to dashboard
   useEffect(() => {
     if (user?.onboardingCompleted) router.replace("/dashboard");
   }, [user?.onboardingCompleted, router]);
 
-  // Initialize theme from the current body class 
   useEffect(() => {
     if (typeof document === "undefined") return;
     const isLight = document.body.classList.contains("shellLight");
@@ -90,10 +85,11 @@ export default function SetupPage() {
 
   function addUnique(setter, arr, value) {
     const v = String(value || "").trim();
-    if (!v) return;
+    if (!v) return false;
     const lower = v.toLowerCase();
-    if (arr.some((x) => x.toLowerCase() === lower)) return;
+    if (arr.some((x) => x.toLowerCase() === lower)) return false;
     setter([...arr, v]);
+    return true;
   }
 
   function removeItem(setter, arr, value) {
@@ -101,13 +97,28 @@ export default function SetupPage() {
   }
 
   function preventEnterSubmit(e) {
-    if (e.key === "Enter") e.preventDefault();
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
   }
 
   function onEnterDo(e, fn) {
     if (e.key !== "Enter") return;
     e.preventDefault();
     fn();
+  }
+
+  function preventImplicitFormSubmit(e) {
+    if (e.key !== "Enter") return;
+
+    const tag = e.target.tagName;
+    const isTextarea = tag === "TEXTAREA";
+    const isSubmitButton =
+      tag === "BUTTON" && e.target.getAttribute("type") === "submit";
+
+    if (isTextarea || isSubmitButton) return;
+
+    e.preventDefault();
   }
 
   async function onThemeChange(nextTheme) {
@@ -121,7 +132,7 @@ export default function SetupPage() {
       });
       await refreshMe();
     } catch {
-      // no-op: don't block setup UI if theme save fails
+      // no-op
     }
   }
 
@@ -129,6 +140,7 @@ export default function SetupPage() {
     e.preventDefault();
     setError("");
     setBusy(true);
+
     try {
       await apiFetch("/api/users/setup", {
         method: "POST",
@@ -170,7 +182,7 @@ export default function SetupPage() {
         {error && <div className={ui.errorBanner}>{error}</div>}
 
         <div className={ui.panel} style={{ marginTop: 14 }}>
-          <form onSubmit={onSubmit} className={ui.formStack}>
+          <form onSubmit={onSubmit} onKeyDown={preventImplicitFormSubmit} className={ui.formStack}>
             <div className={ui.sectionHeaderRow}>
               <h2 className={ui.sectionTitleText}>Bankroll</h2>
             </div>
@@ -262,8 +274,8 @@ export default function SetupPage() {
                   onChange={(e) => setCustomGame(e.target.value)}
                   onKeyDown={(e) =>
                     onEnterDo(e, () => {
-                      addUnique(setGames, games, customGame);
-                      setCustomGame("");
+                      const added = addUnique(setGames, games, customGame);
+                      if (added) setCustomGame("");
                     })
                   }
                   placeholder='Add your own game…'
@@ -274,8 +286,8 @@ export default function SetupPage() {
                 type="button"
                 className={ui.button}
                 onClick={() => {
-                  addUnique(setGames, games, customGame);
-                  setCustomGame("");
+                  const added = addUnique(setGames, games, customGame);
+                  if (added) setCustomGame("");
                 }}
                 disabled={busy}
               >
@@ -312,8 +324,8 @@ export default function SetupPage() {
                   onChange={(e) => setStakeInput(e.target.value)}
                   onKeyDown={(e) =>
                     onEnterDo(e, () => {
-                      addUnique(setStakes, stakes, stakeInput);
-                      setStakeInput("");
+                      const added = addUnique(setStakes, stakes, stakeInput);
+                      if (added) setStakeInput("");
                     })
                   }
                   placeholder='e.g. "1/2", "2/5", "NL50"'
@@ -324,8 +336,8 @@ export default function SetupPage() {
                 type="button"
                 className={ui.button}
                 onClick={() => {
-                  addUnique(setStakes, stakes, stakeInput);
-                  setStakeInput("");
+                  const added = addUnique(setStakes, stakes, stakeInput);
+                  if (added) setStakeInput("");
                 }}
                 disabled={busy}
               >
@@ -362,8 +374,8 @@ export default function SetupPage() {
                   onChange={(e) => setLocationInput(e.target.value)}
                   onKeyDown={(e) =>
                     onEnterDo(e, () => {
-                      addUnique(setLocations, locations, locationInput);
-                      setLocationInput("");
+                      const added = addUnique(setLocations, locations, locationInput);
+                      if (added) setLocationInput("");
                     })
                   }
                   placeholder='e.g. "Bellagio", "Home Game", "ACR"'
@@ -374,8 +386,8 @@ export default function SetupPage() {
                 type="button"
                 className={ui.button}
                 onClick={() => {
-                  addUnique(setLocations, locations, locationInput);
-                  setLocationInput("");
+                  const added = addUnique(setLocations, locations, locationInput);
+                  if (added) setLocationInput("");
                 }}
                 disabled={busy}
               >

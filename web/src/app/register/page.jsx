@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,8 +10,7 @@ import styles from "./register.module.css";
 
 const EMAIL_KEY = "rememberEmail";
 const REMEMBER_KEY = "rememberEmailEnabled";
-
-const GOOGLE_AUTH_URL = "http://localhost:4000/api/auth/google";
+const GOOGLE_AUTH_URL = "/api/auth/google";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,9 +26,10 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
   }, [loading, user, router]);
-
 
   useEffect(() => {
     try {
@@ -41,15 +42,19 @@ export default function RegisterPage() {
         setEmail(savedEmail);
       }
     } catch {
+      // ignore localStorage errors
     }
   }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem(REMEMBER_KEY, String(rememberEmail));
-      if (!rememberEmail) localStorage.removeItem(EMAIL_KEY);
+
+      if (!rememberEmail) {
+        localStorage.removeItem(EMAIL_KEY);
+      }
     } catch {
-      // ignore
+      // ignore localStorage errors
     }
   }, [rememberEmail]);
 
@@ -65,19 +70,26 @@ export default function RegisterPage() {
         try {
           localStorage.setItem(EMAIL_KEY, email);
         } catch {
+          // ignore localStorage errors
         }
       }
 
       await refreshMe();
       router.replace("/setup");
     } catch (err) {
-      setError(err.message || "Sign up failed");
+      setError(err?.message || "Sign up failed");
     } finally {
       setBusy(false);
     }
   }
 
-  if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
+  if (loading) {
+    return <div style={{ padding: 24 }}>Loading…</div>;
+  }
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className={styles.page}>
@@ -85,14 +97,20 @@ export default function RegisterPage() {
         <section className={styles.marketing}>
           <div className={styles.brandRow}>
             <div className={styles.logo}>
-              <img className={styles.logoImg} src="/logo.png" alt="Poker Bankroll Tracker logo" />
+              <Image
+                className={styles.logoImg}
+                src="/logo.png"
+                alt="Poker Bankroll Tracker logo"
+                width={128}
+                height={128}
+                priority
+              />
             </div>
 
             <div>
               <div className={styles.brand}>Poker Bankroll Tracker</div>
               <div className={styles.tagline}>
                 Create an account to start tracking sessions.
-                <br />
               </div>
             </div>
           </div>
@@ -100,15 +118,15 @@ export default function RegisterPage() {
           <ul className={styles.bullets}>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>💼</span>
-              Track multiple bankrolls (Cash / Online / Tournaments)
+              Track multiple bankrolls (cash / online / tournaments)
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>🧾</span>
-              Session Notes are searchable for easy review of past sessions!
+              Session notes are searchable for easy review of past sessions.
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>📈</span>
-              Filter & Chart your data for real time analysis.
+              Filter and chart your data for real-time analysis.
             </li>
             <li className={styles.bullet}>
               <span className={styles.bulletIcon}>🔒</span>
@@ -120,7 +138,6 @@ export default function RegisterPage() {
         <section className={styles.cardWrap}>
           <div className={styles.card}>
             <h1 className={styles.cardTitle}>Create account</h1>
-      
 
             {error && (
               <div className={styles.errorBanner} role="alert">
@@ -134,6 +151,7 @@ export default function RegisterPage() {
                 <span className={styles.label}>Email</span>
                 <input
                   className={styles.input}
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -160,7 +178,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     className={styles.ghostButton}
-                    onClick={() => setShowPassword((v) => !v)}
+                    onClick={() => setShowPassword((prev) => !prev)}
                     disabled={busy}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
@@ -191,7 +209,13 @@ export default function RegisterPage() {
                 }}
                 disabled={busy}
               >
-                <img className={styles.googleButtonImg} src="/google_sign_in.png" alt="Continue with Google" />
+                <Image
+                  className={styles.googleButtonImg}
+                  src="/google_sign_in.png"
+                  alt="Continue with Google"
+                  width={220}
+                  height={49}
+                />
               </button>
             </form>
 

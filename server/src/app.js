@@ -13,11 +13,11 @@ export function createApp() {
   app.use(cookieParser());
 
   app.use(
-    cors({
-      origin: process.env.CLIENT_ORIGIN,
-      credentials: true,
-    })
-  );
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  })
+);
 
   app.get("/api/health", (req, res) => res.json({ ok: true }));
 
